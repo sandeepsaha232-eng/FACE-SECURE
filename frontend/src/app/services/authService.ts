@@ -12,6 +12,7 @@ const getApiUrl = () => {
 };
 
 const API_URL = getApiUrl();
+console.log('DEBUG: authService using API_URL:', API_URL);
 
 const api = axios.create({
     baseURL: API_URL,
