@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 // @ts-ignore
 import crypto from 'crypto-js';
 import bcrypt from 'bcrypt';
+import logger from '../utils/logger';
 
 // Interface for User document
 export interface IUser extends Document {
@@ -95,37 +96,43 @@ const UserSchema = new Schema<IUser>(
 UserSchema.index({ email: 1 });
 
 // Encrypt face embedding before saving
-UserSchema.pre('save', function (this: any, next: (err?: any) => void) {
-    // 1. Encrypt Face Embedding if modified
-    if (this.isModified('faceEmbedding') && this.faceEmbedding) {
-        // If it's already a string (encrypted), skip
-        if (typeof this.faceEmbedding === 'string') {
-            // do nothing
-        } else {
-            try {
-                const encrypted = crypto.AES.encrypt(
-                    JSON.stringify(this.faceEmbedding),
-                    process.env.ENCRYPTION_KEY || 'default-key'
-                ).toString();
-                this.faceEmbedding = encrypted;
-            } catch (error) {
-                return next(error);
+UserSchema.pre('save', async function (this: any) {
+    try {
+        // 1. Encrypt Face Embedding if modified
+        if (this.isModified('faceEmbedding') && this.faceEmbedding) {
+            // If it's already a string (likely encrypted), skip
+            if (typeof this.faceEmbedding === 'string') {
+                logger.debug('Face embedding already encrypted (string type), skipping encryption');
+            } else {
+                try {
+                    logger.debug('Encrypting new face embedding...');
+                    const dataToEncrypt = JSON.stringify(this.faceEmbedding);
+                    const encrypted = crypto.AES.encrypt(
+                        dataToEncrypt,
+                        process.env.ENCRYPTION_KEY || 'default-key'
+                    ).toString();
+                    this.faceEmbedding = encrypted;
+                } catch (error) {
+                    logger.error('Face embedding encryption failed:', error);
+                    throw error;
+                }
             }
         }
-    }
 
-    // 2. Hash Password if modified
-    if (this.isModified('password') && this.password) {
-        bcrypt.genSalt(10, (err, salt) => {
-            if (err) return next(err);
-            bcrypt.hash(this.password, salt, (err, hash) => {
-                if (err) return next(err);
-                this.password = hash;
-                next();
-            });
-        });
-    } else {
-        next();
+        // 2. Hash Password if modified
+        if (this.isModified('password') && this.password) {
+            try {
+                logger.debug('Hashing user password...');
+                const salt = await bcrypt.genSalt(10);
+                this.password = await bcrypt.hash(this.password, salt);
+            } catch (error) {
+                logger.error('Password hashing failed:', error);
+                throw error;
+            }
+        }
+    } catch (error) {
+        logger.error('Error in User pre-save hook:', error);
+        throw error;
     }
 });
 
@@ -140,14 +147,26 @@ UserSchema.methods.decryptFaceEmbedding = function (this: IUser): number[] {
         return this.faceEmbedding;
     }
 
+    let decryptedData = '';
     try {
+        const encryptionKey = process.env.ENCRYPTION_KEY || 'default-key';
         const bytes = crypto.AES.decrypt(
             String(this.faceEmbedding),
-            process.env.ENCRYPTION_KEY || 'default-key'
+            encryptionKey
         );
-        return JSON.parse(bytes.toString(crypto.enc.Utf8));
-    } catch (error) {
-        console.error('Decryption failed:', error);
+        decryptedData = bytes.toString(crypto.enc.Utf8);
+
+        if (!decryptedData) {
+            logger.warn('Decryption returned empty string, possibly wrong key');
+            return [];
+        }
+
+        return JSON.parse(decryptedData);
+    } catch (error: any) {
+        logger.error('Failed to decrypt or parse face embedding:', {
+            error: error.message,
+            decryptedPrefix: decryptedData ? decryptedData.substring(0, 50) : 'none'
+        });
         return [];
     }
 };

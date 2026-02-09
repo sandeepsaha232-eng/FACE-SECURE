@@ -340,11 +340,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             }
         });
     } catch (error: any) {
-        logger.error('Registration error:', error);
+        logger.error('Registration error detailed:', {
+            error: error.message,
+            stack: error.stack,
+            body: { ...req.body, password: '[REDACTED]', faceImage: req.body.faceImage ? 'present' : 'absent' }
+        });
         res.status(500).json({
             success: false,
             error: 'server_error',
-            message: 'An error occurred during registration',
+            message: 'An error occurred during registration: ' + error.message,
         });
     }
 };
