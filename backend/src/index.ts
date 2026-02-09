@@ -58,6 +58,7 @@ const healthHandler = (req: Request, res: Response) => {
 app.get('/health', healthHandler);
 app.get('/api/health', healthHandler);
 app.get('/api/auth/health', healthHandler); // Just in case
+app.get('/api/verify-deployment-v123', (req, res) => res.json({ deployed: true, timestamp: new Date().toISOString() }));
 
 // API Routes
 app.use('/api/auth', authRoutes);

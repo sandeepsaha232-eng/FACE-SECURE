@@ -57,6 +57,9 @@ export function LandingPage() {
             </main>
 
             <Footer />
+            <div className="fixed bottom-0 right-0 bg-black/50 text-white text-[10px] p-1 z-50">
+                v1.0.1-prod-fix
+            </div>
         </div>
     );
 }
