@@ -1,14 +1,14 @@
 import axios from 'axios';
 
 const getApiUrl = () => {
-    // @ts-ignore
-    const envUrl = import.meta.env?.VITE_API_URL;
-    if (envUrl) return envUrl;
-
+    // 1. If we are on a non-localhost domain (e.g. Vercel), force use the same-origin /api
     if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
         return `${window.location.origin}/api`;
     }
-    return 'http://localhost:5000/api';
+
+    // 2. Otherwise, check for environment variable OR use local default
+    // @ts-ignore
+    return import.meta.env?.VITE_API_URL || 'http://localhost:5000/api';
 };
 
 const API_URL = getApiUrl();

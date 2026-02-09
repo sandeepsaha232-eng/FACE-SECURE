@@ -44,17 +44,20 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-// Health check endpoint
+// Health check endpoints
 const healthHandler = (req: Request, res: Response) => {
     res.status(200).json({
+        success: true,
         status: 'ok',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
+        path: req.path
     });
 };
 
 app.get('/health', healthHandler);
 app.get('/api/health', healthHandler);
+app.get('/api/auth/health', healthHandler); // Just in case
 
 // API Routes
 app.use('/api/auth', authRoutes);
