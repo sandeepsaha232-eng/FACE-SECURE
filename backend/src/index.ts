@@ -69,6 +69,10 @@ app.use((req: Request, res: Response) => {
         success: false,
         error: 'not_found',
         message: 'Endpoint not found',
+        path: req.path,
+        method: req.method,
+        baseUrl: req.baseUrl,
+        originalUrl: req.originalUrl
     });
 });
 
