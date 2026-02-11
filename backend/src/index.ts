@@ -44,6 +44,25 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
+// Database connection middleware for Vercel
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+    if (req.path === '/health' || req.path === '/api/health') {
+        return next();
+    }
+
+    try {
+        await connectDatabase();
+        next();
+    } catch (error) {
+        logger.error('Database connection failed:', error);
+        res.status(500).json({
+            success: false,
+            error: 'database_error',
+            message: 'Failed to connect to database'
+        });
+    }
+});
+
 // Health check endpoints
 const healthHandler = (req: Request, res: Response) => {
     res.status(200).json({
