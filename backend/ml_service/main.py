@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import numpy as np
 import uvicorn
+import os
 
 from services.face_detection import (
     base64_to_image,
@@ -169,10 +170,11 @@ async def compare_embeddings_endpoint(request: CompareEmbeddingsRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True,
+        port=port,
+        reload=os.environ.get("NODE_ENV") != "production",
         log_level="info"
     )

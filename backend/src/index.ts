@@ -24,7 +24,17 @@ app.use(helmet({
     },
 }));
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+        const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+            .split(',')
+            .map(o => o.trim());
+        // Allow requests with no origin (e.g. curl, server-to-server)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(null, false);
+        }
+    },
     credentials: true,
 }));
 
