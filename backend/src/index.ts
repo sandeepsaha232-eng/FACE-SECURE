@@ -25,9 +25,9 @@ app.use(helmet({
 }));
 app.use(cors({
     origin: (origin, callback) => {
-        const allowedOrigins = (process.env.FRONTEND_URL || 'https://facesecure-ten.vercel.app,http://localhost:5173,http://localhost:3000')
+        const allowedOrigins = (process.env.FRONTEND_URL || 'https://facesecure-ten.vercel.app,https://facesecure-git-main-sandeeps-projects-d6bbd9b3.vercel.app,http://localhost:5173,http://localhost:3000')
             .split(',')
-            .map(o => o.trim());
+            .map(o => o.trim().replace(/\/$/, ""));
         // Allow requests with no origin (e.g. curl, server-to-server) or from allowed list
         if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
             callback(null, true);
