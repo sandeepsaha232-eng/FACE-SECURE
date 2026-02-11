@@ -1,14 +1,19 @@
 import axios from 'axios';
 
 const getApiUrl = () => {
-    // 1. Check for environment variable (set in Vercel to point to Railway backend)
+    // 1. Check for environment variable (set VITE_API_URL in Vercel to point to Railway backend)
     // @ts-ignore
     const envUrl = import.meta.env?.VITE_API_URL;
     if (envUrl) {
         return envUrl;
     }
 
-    // 2. Local development fallback (proxied through Vite/Vercel)
+    // 2. Local development: proxy configured in vite.config.ts forwards /api to localhost:5000
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        return '/api';
+    }
+
+    // 3. Production fallback: same-origin /api (requires Vercel rewrite or VITE_API_URL to be set)
     return '/api';
 };
 
