@@ -25,7 +25,7 @@ app.use(helmet({
 }));
 app.use(cors({
     origin: (origin, callback) => {
-        const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+        const allowedOrigins = (process.env.FRONTEND_URL || 'https://facesecure-ten.vercel.app,http://localhost:5173,http://localhost:3000')
             .split(',')
             .map(o => o.trim());
         // Allow requests with no origin (e.g. curl, server-to-server) or from allowed list
@@ -39,6 +39,9 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 }));
+
+// Handle preflight explicitly
+app.options('*', cors());
 
 // Body parser
 app.use(express.json({ limit: '10mb' })); // Allow larger payloads for images
