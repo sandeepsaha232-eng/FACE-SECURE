@@ -161,6 +161,12 @@ UserSchema.methods.decryptFaceEmbedding = function (this: IUser): number[] {
             return [];
         }
 
+        // Check if the decrypted data is valid JSON before parsing
+        if (!decryptedData.startsWith('[') && !decryptedData.startsWith('{')) {
+            logger.warn('Decrypted data does not look like JSON:', decryptedData.substring(0, 20));
+            return [];
+        }
+
         return JSON.parse(decryptedData);
     } catch (error: any) {
         logger.error('Failed to decrypt or parse face embedding:', {
