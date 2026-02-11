@@ -1,0 +1,12 @@
+node_modules
+dist
+.vite
+backend
+ml_service
+Procfile
+railway.toml
+nixpacks.toml
+fix.sh
+ .DS_Store
+.env
+.vercel
