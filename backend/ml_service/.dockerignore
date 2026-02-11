@@ -1,0 +1,20 @@
+# Python-specific ignores
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Large ML files (if applicable—e.g., if models/ has big .pt or .h5 files)
+# models/  # Uncomment if you want to ignore models folder
+# data/    # Uncomment if you have datasets
+
+# General junk
+.git/
+.gitignore
+*.log
+tmp/
+.env
+node_modules/  # If any Node crossover from parent folder
