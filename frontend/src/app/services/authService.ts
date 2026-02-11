@@ -8,8 +8,8 @@ const getApiUrl = () => {
         return envUrl;
     }
 
-    // 2. Local development fallback
-    return 'http://localhost:5000/api';
+    // 2. Local development fallback (proxied through Vite/Vercel)
+    return '/api';
 };
 
 const API_URL = getApiUrl();
