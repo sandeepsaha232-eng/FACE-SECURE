@@ -28,13 +28,15 @@ app.use(cors({
         const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
             .split(',')
             .map(o => o.trim());
-        // Allow requests with no origin (e.g. curl, server-to-server)
-        if (!origin || allowedOrigins.includes(origin)) {
+        // Allow requests with no origin (e.g. curl, server-to-server) or from allowed list
+        if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
             callback(null, true);
         } else {
             callback(null, false);
         }
     },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 }));
 
