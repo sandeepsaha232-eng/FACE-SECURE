@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "NODE_ENV=production vite build",
     "vercel-build": "npm install --legacy-peer-deps && vite build"
   },
   "dependencies": {
