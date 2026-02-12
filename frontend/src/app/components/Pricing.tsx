@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { Check, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const plans = [
   {
@@ -54,6 +55,13 @@ const plans = [
 ];
 
 export function Pricing() {
+  const navigate = useNavigate();
+
+  const handlePlanClick = () => {
+    alert("Please login to subscribe to a plan.");
+    navigate('/login');
+  };
+
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#0A2A44]">
       <div className="max-w-7xl mx-auto">
@@ -84,11 +92,10 @@ export function Pricing() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className={`relative rounded-2xl p-8 border-2 transition-all duration-300 ${
-                plan.popular
-                  ? 'border-[#3DD5E7] shadow-2xl shadow-[#1FB6C9]/20 bg-gradient-to-br from-[#071C2F] to-[#0A2A44]'
-                  : 'border-[#1FB6C9]/20 shadow-lg hover:shadow-xl hover:border-[#3DD5E7]/40 bg-[#071C2F]'
-              }`}
+              className={`relative rounded-2xl p-8 border-2 transition-all duration-300 ${plan.popular
+                ? 'border-[#3DD5E7] shadow-2xl shadow-[#1FB6C9]/20 bg-gradient-to-br from-[#071C2F] to-[#0A2A44]'
+                : 'border-[#1FB6C9]/20 shadow-lg hover:shadow-xl hover:border-[#3DD5E7]/40 bg-[#071C2F]'
+                }`}
             >
               {plan.popular && (
                 <motion.div
@@ -113,14 +120,15 @@ export function Pricing() {
               </div>
 
               <button
-                className={`w-full py-3 rounded-lg transition-all duration-300 mb-6 font-semibold ${
-                  plan.popular
+                onClick={handlePlanClick}
+                className={`w-full py-3 rounded-lg transition-all duration-300 mb-6 font-semibold ${plan.popular
                     ? 'bg-gradient-to-r from-[#1FB6C9] to-[#3DD5E7] hover:from-[#3DD5E7] hover:to-[#6FEAFF] text-[#071C2F] shadow-lg shadow-[#1FB6C9]/30 hover:shadow-xl hover:shadow-[#6FEAFF]/40'
                     : 'bg-white/10 hover:bg-[#1FB6C9]/20 text-white border border-[#3DD5E7]/30'
-                }`}
+                  }`}
               >
                 {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
               </button>
+
 
               <div className="space-y-3">
                 {plan.features.map((feature, featureIndex) => (
@@ -132,9 +140,8 @@ export function Pricing() {
                     transition={{ delay: index * 0.1 + featureIndex * 0.05 }}
                     className="flex items-start gap-3"
                   >
-                    <div className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
-                      plan.popular ? 'bg-gradient-to-br from-[#1FB6C9] to-[#3DD5E7]' : 'bg-[#1FB6C9]'
-                    }`}>
+                    <div className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${plan.popular ? 'bg-gradient-to-br from-[#1FB6C9] to-[#3DD5E7]' : 'bg-[#1FB6C9]'
+                      }`}>
                       <Check className="w-3 h-3 text-white" />
                     </div>
                     <span className="text-gray-300">{feature}</span>
