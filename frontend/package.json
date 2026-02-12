@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "NODE_ENV=production vite build",
-    "vercel-build": "npm install --legacy-peer-deps && vite build"
+    "build": "vite build"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
