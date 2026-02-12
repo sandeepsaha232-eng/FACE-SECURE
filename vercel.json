@@ -1,16 +1,22 @@
 {
-    "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build",
-    "outputDirectory": "frontend/dist",
-    "installCommand": "cd frontend && npm install --legacy-peer-deps",
-    "framework": "vite",
-    "rewrites": [
+    "version": 2,
+    "builds": [
         {
-            "source": "/api/(.*)",
-            "destination": "https://face-secure-backend-production.up.railway.app/api/$1"
+            "src": "frontend/package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "https://face-secure-backend-production.up.railway.app/api/$1"
         },
         {
-            "source": "/(.*)",
-            "destination": "/index.html"
+            "src": "/(.*)",
+            "dest": "/frontend/$1"
         }
     ]
 }
