@@ -1,16 +1,24 @@
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image
 import io
 import base64
 from typing import Tuple, Optional
-import mediapipe as mp
+import os
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
-# Initialize MediaPipe Face Detection
-mp_face_detection = mp.solutions.face_detection
-face_detection = mp_face_detection.FaceDetection(
-    model_selection=1, # 0 for short range, 1 for full range
-    min_detection_confidence=0.5
-)
+# Initialize MediaPipe Tasks Face Detector
+current_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(current_dir, "..", "models", "blaze_face_short_range.tflite")
+
+# Check if model exists (for local testing/fallback)
+if os.path.exists(model_path):
+    base_options = python.BaseOptions(model_asset_path=model_path)
+    options = vision.FaceDetectorOptions(base_options=base_options)
+    detector = vision.FaceDetector.create_from_options(options)
+else:
+    print(f"⚠️ MediaPipe model not found at {model_path}. Face detection will be limited.")
+    detector = None
 
 def base64_to_image(base64_string: str) -> np.ndarray:
     """Convert base64 string to RGB numpy array using PIL"""
@@ -33,35 +41,35 @@ def base64_to_image(base64_string: str) -> np.ndarray:
 
 def detect_face(image: np.ndarray) -> Tuple[bool, float, Optional[dict]]:
     """
-    Detect face in image using MediaPipe
+    Detect face in image using MediaPipe Tasks
     Returns: (face_detected, confidence, bounding_box)
     """
-    # MediaPipe expects RGB (which we already have)
-    results = face_detection.process(image)
+    if detector is None:
+        return False, 0.0, None
+
+    # MediaPipe Tasks expects MPImage
+    mp_image = vision.MPImage(image_format=vision.ImageFormat.SRGB, data=image)
     
-    if not results.detections:
+    # Process detection
+    detection_result = detector.detect(mp_image)
+    
+    if not detection_result.detections:
         return False, 0.0, None
     
     # Get the detection with the highest score
-    detection = max(results.detections, key=lambda d: d.score[0])
+    detection = max(detection_result.detections, key=lambda d: d.categories[0].score)
     
-    bbox_relative = detection.location_data.relative_bounding_box
-    ih, iw, _ = image.shape
-    
-    # Convert relative coordinates to pixels
-    x = int(bbox_relative.xmin * iw)
-    y = int(bbox_relative.ymin * ih)
-    w = int(bbox_relative.width * iw)
-    h = int(bbox_relative.height * ih)
+    # MediaPipe Tasks bounding box is in absolute pixel coordinates
+    bbox = detection.bounding_box
     
     bounding_box = {
-        'x': x,
-        'y': y,
-        'width': w,
-        'height': h
+        'x': int(bbox.origin_x),
+        'y': int(bbox.origin_y),
+        'width': int(bbox.width),
+        'height': int(bbox.height)
     }
     
-    return True, float(detection.score[0]), bounding_box
+    return True, float(detection.categories[0].score), bounding_box
 
 def extract_face_region(image: np.ndarray, bbox: dict, padding: float = 0.2) -> np.ndarray:
     """Extract face region with padding"""

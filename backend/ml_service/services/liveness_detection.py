@@ -1,18 +1,28 @@
 import numpy as np
-import mediapipe as mp
 from PIL import Image
 from scipy.fft import fft2, fftshift
 from typing import Dict, Any, List
 import time
+import os
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
-# Initialize Mediapipe
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(
-    static_image_mode=True,
-    max_num_faces=1,
-    refine_landmarks=True,
-    min_detection_confidence=0.5
-)
+# Initialize MediaPipe Tasks Face Landmarker
+current_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(current_dir, "..", "models", "face_landmarker.task")
+
+if os.path.exists(model_path):
+    base_options = python.BaseOptions(model_asset_path=model_path)
+    options = vision.FaceLandmarkerOptions(
+        base_options=base_options,
+        output_face_blendshapes=True,
+        output_face_transformation_matrixes=True,
+        num_faces=1
+    )
+    landmarker = vision.FaceLandmarker.create_from_options(options)
+else:
+    print(f"⚠️ MediaPipe Landmarker model not found at {model_path}.")
+    landmarker = None
 
 # Global state for motion analysis
 SESSION_STATE = {}
@@ -38,27 +48,27 @@ class LivenessAnalyzer:
     def texture_analysis(face_image: np.ndarray) -> float:
         """Method 1: Texture Analysis using NumPy Laplacian proxy"""
         gray = LivenessAnalyzer.rgb_to_gray(face_image)
-        
-        # Simple Laplacian-like kernel variance
         edge_h = np.diff(gray, axis=0, n=2)
         edge_v = np.diff(gray, axis=1, n=2)
         lap_var = np.var(edge_h) + np.var(edge_v)
         
-        # Normalized score: Adjusted threshold for the NumPy proxy
-        if 5 < lap_var < 50: # Adjusting range based on our face_detection.py proxy
+        if 5 < lap_var < 50:
             return 1.0
         return 0.5
 
     @staticmethod
     def depth_mapping(image: np.ndarray) -> float:
-        """Method 2: Depth check (unchanged as it used MediaPipe)"""
-        # Ensure RGB (input is already RGB in our new pipeline)
-        results = face_mesh.process(image)
+        """Method 2: Depth check using Tasks FaceLandmarker"""
+        if landmarker is None:
+            return 0.5
+
+        mp_image = vision.MPImage(image_format=vision.ImageFormat.SRGB, data=image)
+        result = landmarker.detect(mp_image)
         
-        if not results.multi_face_landmarks:
+        if not result.face_landmarks:
             return 0.0
         
-        landmarks = results.multi_face_landmarks[0].landmark
+        landmarks = result.face_landmarks[0]
         nose_z = landmarks[1].z
         others_z = [landmarks[33].z, landmarks[263].z, landmarks[152].z, landmarks[234].z, landmarks[454].z]
         avg_others_z = np.mean(others_z)
@@ -73,13 +83,17 @@ class LivenessAnalyzer:
 
     @staticmethod
     def motion_analysis(image: np.ndarray, session_id: str = "default") -> float:
-        """Method 3: Motion Analysis (unchanged logic)"""
-        results = face_mesh.process(image)
+        """Method 3: Motion Analysis using Tasks FaceLandmarker"""
+        if landmarker is None:
+            return 0.5
+
+        mp_image = vision.MPImage(image_format=vision.ImageFormat.SRGB, data=image)
+        result = landmarker.detect(mp_image)
         
-        if not results.multi_face_landmarks:
+        if not result.face_landmarks:
             return 0.0
             
-        landmarks = results.multi_face_landmarks[0].landmark
+        landmarks = result.face_landmarks[0]
         
         def get_ear(top, bottom, inner, outer):
             h = abs(landmarks[top].y - landmarks[bottom].y)
@@ -115,13 +129,11 @@ class LivenessAnalyzer:
     @staticmethod
     def reflection_analysis(image: np.ndarray) -> float:
         """Method 4: Reflection Analysis using NumPy"""
-        # Blue ratio
         r, g, b = image[..., 0], image[..., 1], image[..., 2]
         avg_r = np.mean(r)
         avg_b = np.mean(b)
         blue_ratio = avg_b / (avg_r + 1e-6)
         
-        # Glare check
         gray = LivenessAnalyzer.rgb_to_gray(image)
         glare_ratio = np.sum(gray > 240) / gray.size
         
