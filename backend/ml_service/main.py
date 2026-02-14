@@ -1,14 +1,3 @@
-import sys
-import logging
-
-# FORCE HEADLESS OPENCV: Patch sys.modules to use opencv-python-headless
-# This must be done BEFORE importing dependencies like mediapipe that might pull in opencv-contrib-python
-try:
-    import cv2
-    sys.modules["cv2"] = cv2
-except ImportError:
-    pass
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel

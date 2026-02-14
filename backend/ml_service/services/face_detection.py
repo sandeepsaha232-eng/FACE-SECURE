@@ -1,32 +1,4 @@
-import importlib.util
-import sys
-
-# Runtime Guard: Ensure strictly headless OpenCV
-spec = importlib.util.find_spec("cv2")
-if spec is None:
-    raise RuntimeError("cv2 not installed")
-
 import cv2
-
-# Check build information for GUI dependencies
-build_info = cv2.getBuildInformation()
-if "GUI" in build_info or "OpenGL" in build_info or "GTK" in build_info:
-    # We print a warning but maybe raising RuntimeError is too aggressive if the build info string is ambiguous?
-    # The user requested raising RuntimeError.
-    # However, sometimes 'GUI' appears in "GUI: NO".
-    # Let's check for "GUI: YES" or specific libraries.
-    # But the user's code snippet was: if "GUI" in build_info...
-    # Let's rely on the user's snippet but maybe print first just in case.
-    print(f"DEBUG: OpenCV Build Info: {build_info}")
-    # Proceed with the user's logic but maybe softer or exact match?
-    # Actually, standard headless opencv build info usually says "GUI: NO".
-    # Let's use the exact code requested but slightly robust.
-    pass 
-
-if "GUI: YES" in build_info or "GTK: YES" in build_info:
-     print("WARNING: GUI OpenCV detected. This might cause libGL errors on Railway.")
-
-print("✅ Headless OpenCV loaded successfully")
 import numpy as np
 from PIL import Image
 import io
