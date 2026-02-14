@@ -1,7 +1,7 @@
 providers = ["python"]
 
 [phases.setup]
-nixPkgs = ["python310", "gcc", "cmake", "libglvnd", "mesa", "glib"]
+nixPkgs = ["python310", "gcc", "cmake"]
 
 [variables]
 PIP_NO_CACHE_DIR = "1"

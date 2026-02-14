@@ -1,6 +1,6 @@
-import cv2
 import numpy as np
 import mediapipe as mp
+from PIL import Image
 from scipy.fft import fft2, fftshift
 from typing import Dict, Any, List
 import time
@@ -14,62 +14,57 @@ face_mesh = mp_face_mesh.FaceMesh(
     min_detection_confidence=0.5
 )
 
-# Global state for motion analysis (simple session-based buffer)
-# In production, use Redis or a proper session manager
+# Global state for motion analysis
 SESSION_STATE = {}
 
 class LivenessAnalyzer:
     @staticmethod
+    def rgb_to_gray(image: np.ndarray) -> np.ndarray:
+        """Helper to convert RGB to Grayscale using luminosity formula"""
+        if len(image.shape) == 3:
+            return np.dot(image[...,:3], [0.2989, 0.5870, 0.1140])
+        return image
+
+    @staticmethod
     def preprocess_for_low_light(image: np.ndarray) -> np.ndarray:
-        """Apply CLAHE to improve visibility in dark environments"""
-        lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
-        l, a, b = cv2.split(lab)
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-        cl = clahe.apply(l)
-        limg = cv2.merge((cl, a, b))
-        return cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
+        """Simple contrast stretching as an alternative to CLAHE"""
+        img_min = image.min()
+        img_max = image.max()
+        if img_max > img_min:
+            return ((image - img_min) / (img_max - img_min) * 255).astype(np.uint8)
+        return image
 
     @staticmethod
     def texture_analysis(face_image: np.ndarray) -> float:
-        """Method 1: Texture Analysis (skin vs paper/screen)"""
-        gray = cv2.cvtColor(face_image, cv2.COLOR_BGR2GRAY)
+        """Method 1: Texture Analysis using NumPy Laplacian proxy"""
+        gray = LivenessAnalyzer.rgb_to_gray(face_image)
         
-        # Laplacian variance for sharpness (paper is often too flat or too noisy)
-        lap_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+        # Simple Laplacian-like kernel variance
+        edge_h = np.diff(gray, axis=0, n=2)
+        edge_v = np.diff(gray, axis=1, n=2)
+        lap_var = np.var(edge_h) + np.var(edge_v)
         
-        # Local Binary Pattern (simplified) would be better here, but Laplacian 
-        # is a good proxy for "natural" skin texture vs digitally printed patterns
-        # Normalized score: real skin usually has variance between 150-800
-        if 150 < lap_var < 1000:
+        # Normalized score: Adjusted threshold for the NumPy proxy
+        if 5 < lap_var < 50: # Adjusting range based on our face_detection.py proxy
             return 1.0
         return 0.5
 
     @staticmethod
     def depth_mapping(image: np.ndarray) -> float:
-        """Method 2: Depth/3D Mapping - Specific Nose Protrusion Check"""
-        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        results = face_mesh.process(rgb_image)
+        """Method 2: Depth check (unchanged as it used MediaPipe)"""
+        # Ensure RGB (input is already RGB in our new pipeline)
+        results = face_mesh.process(image)
         
         if not results.multi_face_landmarks:
             return 0.0
         
         landmarks = results.multi_face_landmarks[0].landmark
-        
-        # Landmarks: Nose Tip (1), Left Eye (33), Right Eye (263), Chin (152), Cheeks (234, 454)
         nose_z = landmarks[1].z
         others_z = [landmarks[33].z, landmarks[263].z, landmarks[152].z, landmarks[234].z, landmarks[454].z]
         avg_others_z = np.mean(others_z)
-        
-        # On a real face, the nose tip is CLOSER (more negative Z) than the rest.
-        # Difference = avg_others_z - nose_z
-        # For a flat photo, this diff will be close to 0 or even negative if the photo is tilted.
         protrusion = avg_others_z - nose_z
-        
-        # Variance check still useful as a secondary signal
         depth_variance = np.var([nose_z] + others_z)
         
-        # Photo/Screen: protrusion is very small (< 0.01)
-        # Real human: protrusion is usually > 0.04
         if protrusion > 0.04 and depth_variance > 0.001:
             return 1.0
         if protrusion > 0.02 and depth_variance > 0.0006:
@@ -78,16 +73,14 @@ class LivenessAnalyzer:
 
     @staticmethod
     def motion_analysis(image: np.ndarray, session_id: str = "default") -> float:
-        """Method 3: Motion Analysis (Micro-movement & EAR tracking)"""
-        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        results = face_mesh.process(rgb_image)
+        """Method 3: Motion Analysis (unchanged logic)"""
+        results = face_mesh.process(image)
         
         if not results.multi_face_landmarks:
             return 0.0
             
         landmarks = results.multi_face_landmarks[0].landmark
         
-        # EAR and Pose
         def get_ear(top, bottom, inner, outer):
             h = abs(landmarks[top].y - landmarks[bottom].y)
             w = abs(landmarks[inner].x - landmarks[outer].x)
@@ -107,46 +100,39 @@ class LivenessAnalyzer:
         if len(state['ear']) > 15: state['ear'].pop(0)
         if len(state['pose']) > 15: state['pose'].pop(0)
         
-        if len(state['ear']) < 5: return 0.5 # Wait for more data
+        if len(state['ear']) < 5: return 0.5
         
         ear_var = np.var(state['ear'])
         pose_var = np.var([p[0] for p in state['pose']]) + np.var([p[1] for p in state['pose']])
         
-        # Logic: A photo held in hand has some motion, but it's "jitter" 
-        # compared to "natural" face motion. 
-        # But for photo on screen, it's 100% static.
         if ear_var < 0.000001 and pose_var < 0.000001:
-            return 0.0 # Static
+            return 0.0
             
-        # Significant motion check
         if ear_var > 0.0001 or pose_var > 0.0002:
             return 1.0
         return 0.3
 
     @staticmethod
     def reflection_analysis(image: np.ndarray) -> float:
-        """Method 4: Enhanced Screen Detection (Glare + Blue Tint)"""
-        # Screens often have a blueish tint compared to natural lighting
-        b, g, r = cv2.split(image)
-        avg_b = np.mean(b)
+        """Method 4: Reflection Analysis using NumPy"""
+        # Blue ratio
+        r, g, b = image[..., 0], image[..., 1], image[..., 2]
         avg_r = np.mean(r)
-        
+        avg_b = np.mean(b)
         blue_ratio = avg_b / (avg_r + 1e-6)
         
         # Glare check
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        _, thresh = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
-        glare_ratio = np.sum(thresh == 255) / (image.shape[0] * image.shape[1])
+        gray = LivenessAnalyzer.rgb_to_gray(image)
+        glare_ratio = np.sum(gray > 240) / gray.size
         
-        # If blue tint is too high OR glare is too sharp
         if blue_ratio > 1.3 or glare_ratio > 0.02:
             return 0.0
         return 0.9
 
     @staticmethod
     def frequency_domain_analysis(image: np.ndarray) -> float:
-        """Method 5: FFT for Moire Pattern Detection"""
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        """Method 5: FFT Analysis using SciPy/NumPy"""
+        gray = LivenessAnalyzer.rgb_to_gray(image)
         h, w = gray.shape
         cy, cx = h // 2, w // 2
         gray_roi = gray[max(0, cy-120):min(h, cy+120), max(0, cx-120):min(w, cx+120)]
@@ -157,23 +143,20 @@ class LivenessAnalyzer:
         mag = np.abs(f)
         mag = 20 * np.log(mag + 1)
         
-        # In a real face, the high-frequency spectrum is relatively smooth.
-        # Digital screens show periodic spikes.
         h_r, w_r = gray_roi.shape
-        mag[h_r//2-10:h_r//2+10, w_r//2-10:w_r//2+10] = 0 # Ignore low freq
+        mag[h_r//2-10:h_r//2+10, w_r//2-10:w_r//2+10] = 0
         
-        # If we find "spikes" in high freq regions
         hf_spike = np.max(mag) / (np.mean(mag) + 1e-6)
         
-        if hf_spike > 8.0: # Significant periodicity detected
+        if hf_spike > 8.0:
             return 0.0
         return 1.0
 
 def check_liveness_advanced(image: np.ndarray, session_id: str = "default") -> Dict[str, Any]:
     """
-    State-of-the-Art Liveness Detection with Final Gatekeeper Logic.
+    State-of-the-Art Liveness Detection without OpenCV.
     """
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = LivenessAnalyzer.rgb_to_gray(image)
     low_light = np.mean(gray) < 40
     processed_image = LivenessAnalyzer.preprocess_for_low_light(image)
     
@@ -189,21 +172,17 @@ def check_liveness_advanced(image: np.ndarray, session_id: str = "default") -> D
     for k, v in scores.items():
         print(f"   | {k:10}: {v:.3f}")
     
-    # 🛡️ GATEKEEPER LOGIC: Critical failures result in instant rejection
-    # If the system detects a flat surface (depth=0) or a screen pattern (frequency=0)
-    # it is rejected regardless of other scores.
     critical_fail = scores['depth'] == 0.0 or scores['frequency'] == 0.0 or scores['reflection'] == 0.0
     
     weights = {
         'texture': 0.1,
-        'depth': 0.5,       # Mandatory 3D
+        'depth': 0.5,
         'motion': 0.2,
         'reflection': 0.1,
         'frequency': 0.1
     }
     
     final_score = sum(scores[m] * weights[m] for m in scores)
-    
     is_live = not critical_fail and final_score > 0.8 and scores['depth'] > 0.5
     
     print(f"   👉 Final Result: {'LIVE' if is_live else 'SPOOF'} (Score: {final_score:.2f})")
@@ -214,3 +193,4 @@ def check_liveness_advanced(image: np.ndarray, session_id: str = "default") -> D
         'lowLight': bool(low_light),
         'metrics': scores
     }
+

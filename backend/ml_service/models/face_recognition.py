@@ -2,7 +2,7 @@ import numpy as np
 from facenet_pytorch import InceptionResnetV1
 import torch
 from typing import List
-import cv2
+
 
 class FaceEmbeddingModel:
     """Face embedding generator using FaceNet"""

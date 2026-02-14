@@ -1,12 +1,19 @@
-import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 import io
 import base64
 from typing import Tuple, Optional
+import mediapipe as mp
+
+# Initialize MediaPipe Face Detection
+mp_face_detection = mp.solutions.face_detection
+face_detection = mp_face_detection.FaceDetection(
+    model_selection=1, # 0 for short range, 1 for full range
+    min_detection_confidence=0.5
+)
 
 def base64_to_image(base64_string: str) -> np.ndarray:
-    """Convert base64 string to OpenCV image"""
+    """Convert base64 string to RGB numpy array using PIL"""
     # Remove data URI prefix if present
     if ',' in base64_string:
         base64_string = base64_string.split(',')[1]
@@ -17,60 +24,49 @@ def base64_to_image(base64_string: str) -> np.ndarray:
     # Convert to PIL Image
     pil_image = Image.open(io.BytesIO(image_bytes))
     
+    # Ensure RGB
+    if pil_image.mode != "RGB":
+        pil_image = pil_image.convert("RGB")
+    
     # Convert to numpy array
-    image = np.array(pil_image)
-    
-    # Convert RGB to BGR for OpenCV
-    if len(image.shape) == 3 and image.shape[2] == 3:
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    
-    return image
+    return np.array(pil_image)
 
 def detect_face(image: np.ndarray) -> Tuple[bool, float, Optional[dict]]:
     """
-    Detect face in image using Haar Cascade
+    Detect face in image using MediaPipe
     Returns: (face_detected, confidence, bounding_box)
     """
-    # Load pre-trained face detector
-    face_cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
-    )
+    # MediaPipe expects RGB (which we already have)
+    results = face_detection.process(image)
     
-    # Convert to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-    # Detect faces
-    faces = face_cascade.detectMultiScale(
-        gray,
-        scaleFactor=1.1,
-        minNeighbors=5,
-        minSize=(30, 30)
-    )
-    
-    if len(faces) == 0:
+    if not results.detections:
         return False, 0.0, None
     
-    # Get largest face
-    largest_face = max(faces, key=lambda f: f[2] * f[3])
-    x, y, w, h = largest_face
+    # Get the detection with the highest score
+    detection = max(results.detections, key=lambda d: d.score[0])
     
-    # Calculate confidence (simple heuristic based on size)
-    image_area = image.shape[0] * image.shape[1]
-    face_area = w * h
-    confidence = min(1.0, (face_area / image_area) * 5)  # Normalize to 0-1
+    bbox_relative = detection.location_data.relative_bounding_box
+    ih, iw, _ = image.shape
+    
+    # Convert relative coordinates to pixels
+    x = int(bbox_relative.xmin * iw)
+    y = int(bbox_relative.ymin * ih)
+    w = int(bbox_relative.width * iw)
+    h = int(bbox_relative.height * ih)
     
     bounding_box = {
-        'x': int(x),
-        'y': int(y),
-        'width': int(w),
-        'height': int(h)
+        'x': x,
+        'y': y,
+        'width': w,
+        'height': h
     }
     
-    return True, float(confidence), bounding_box
+    return True, float(detection.score[0]), bounding_box
 
 def extract_face_region(image: np.ndarray, bbox: dict, padding: float = 0.2) -> np.ndarray:
     """Extract face region with padding"""
     x, y, w, h = bbox['x'], bbox['y'], bbox['width'], bbox['height']
+    ih, iw, _ = image.shape
     
     # Add padding
     pad_w = int(w * padding)
@@ -78,43 +74,57 @@ def extract_face_region(image: np.ndarray, bbox: dict, padding: float = 0.2) -> 
     
     x1 = max(0, x - pad_w)
     y1 = max(0, y - pad_h)
-    x2 = min(image.shape[1], x + w + pad_w)
-    y2 = min(image.shape[0], y + h + pad_h)
+    x2 = min(iw, x + w + pad_w)
+    y2 = min(ih, y + h + pad_h)
     
     face = image[y1:y2, x1:x2]
     return face
 
 def preprocess_face(face: np.ndarray, target_size: Tuple[int, int] = (160, 160)) -> np.ndarray:
-    """Preprocess face for embedding generation"""
-    # Resize
-    face_resized = cv2.resize(face, target_size)
+    """Preprocess face for embedding generation using PIL"""
+    # Convert numpy array to PIL
+    pil_face = Image.fromarray(face)
     
-    # Convert to RGB
-    face_rgb = cv2.cvtColor(face_resized, cv2.COLOR_BGR2RGB)
+    # Resize
+    pil_face = pil_face.resize(target_size, Image.Resampling.LANCZOS)
+    
+    # Convert back to numpy
+    face_rgb = np.array(pil_face)
     
     # Normalize to [0, 1]
     face_normalized = face_rgb.astype(np.float32) / 255.0
     
-    # Apply histogram equalization for lighting normalization
-    # (optional, but helps with varying lighting conditions)
-    
     return face_normalized
 
 def calculate_image_quality(image: np.ndarray) -> float:
-    """Calculate image quality score based on various metrics"""
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    """Calculate image quality score without OpenCV"""
+    # Convert to grayscale via luminosity formula
+    # gray = 0.2989 R + 0.5870 G + 0.1140 B
+    if len(image.shape) == 3:
+        gray = np.dot(image[...,:3], [0.2989, 0.5870, 0.1140])
+    else:
+        gray = image
+
+    # Laplacian Sharpness approximation using NumPy
+    # Kernel: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
+    def laplacian_variance(img):
+        # A simple 3x3 Laplacian kernel trick without cv2
+        # Use simple differences as a proxy for the 2nd derivative
+        edge_h = np.diff(img, axis=0, n=2)
+        edge_v = np.diff(img, axis=1, n=2)
+        # Sum of variances of internal differences can act as a sharpness proxy
+        return np.var(edge_h) + np.var(edge_v)
+
+    sharpness = laplacian_variance(gray)
     
-    # Laplacian variance (sharpness)
-    laplacian = cv2.Laplacian(gray, cv2.CV_64F)
-    sharpness = laplacian.var()
-    
-    # Normalize sharpness to 0-1 range
-    # Higher variance = sharper image
-    quality = min(1.0, sharpness / 500.0)
+    # Adjusted threshold for this proxy (Laplacian variance usually > 100 for sharp images in cv2)
+    # Our proxy is smaller, let's normalize differently.
+    quality = min(1.0, sharpness / 10.0) 
     
     # Check brightness
     mean_brightness = gray.mean()
-    if mean_brightness < 50 or mean_brightness > 200:
-        quality *=  0.7  # Penalize too dark or too bright
+    if mean_brightness < 40 or mean_brightness > 215:
+        quality *= 0.7
     
     return float(quality)
+
