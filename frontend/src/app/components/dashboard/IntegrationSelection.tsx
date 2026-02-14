@@ -6,6 +6,7 @@ import { Card } from '../ui/card';
 import { toast } from 'sonner';
 import { ApiKeyDashboard } from './ApiKeyDashboard';
 import { WebsiteLinkReport } from './WebsiteLinkReport';
+import { apiKeyService } from '../../services/apiKeyService';
 
 interface IntegrationSelectionProps {
     onBack: () => void;
@@ -18,11 +19,16 @@ export function IntegrationSelection({ onBack, onSelectMethod, planName, autoSho
     const [generatedLink, setGeneratedLink] = useState<string | null>(null);
     const [showApiDashboard, setShowApiDashboard] = useState(autoShowApi || false);
 
-    const handleGenerateLink = () => {
-        const baseUrl = window.location.origin;
-        const link = `${baseUrl}/verify?ref=client_${Math.random().toString(36).substring(7)}`;
-        setGeneratedLink(link);
-        toast.success('Secure verification link generated!');
+    const handleGenerateLink = async () => {
+        try {
+            const response = await apiKeyService.createVerificationSession();
+            // Backend returns verification_url which includes the session ID
+            setGeneratedLink(response.verification_url);
+            toast.success('Secure verification session created!');
+        } catch (error) {
+            console.error('Failed to create session:', error);
+            toast.error('Failed to generate secure link. Please try again.');
+        }
     };
 
     const copyToClipboard = () => {

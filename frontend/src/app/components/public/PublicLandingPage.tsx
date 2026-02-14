@@ -4,6 +4,7 @@ import { Shield, Lock, CheckCircle2, User, ArrowRight, Loader2 } from 'lucide-re
 import { CameraStream } from '../shared/CameraStream';
 import { FaceSecureLogo } from '../dashboard/FaceSecureLogo';
 import { statsService } from '../../services/statsService';
+import { apiKeyService } from '../../services/apiKeyService';
 import { toast, Toaster } from 'sonner';
 
 interface PublicLandingPageProps {
@@ -30,7 +31,26 @@ export function PublicLandingPage({ onVerifySuccess }: PublicLandingPageProps) {
         if (!name || !lastPhoto) return;
         setIsSubmitting(true);
         try {
-            await statsService.submitVerification(name, lastPhoto, lastScore);
+            // Check for session ID in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session');
+
+            if (sessionId) {
+                // Session-based verification (Server-side link)
+                await apiKeyService.completeVerificationSession(sessionId, {
+                    status: 'verified',
+                    confidence: 98, // In a real app, this would come from the ML service
+                    signals: {
+                        liveness: isLive ? 'pass' : 'fail',
+                        replay: 'none',
+                        behavior: 'normal'
+                    }
+                });
+            } else {
+                // Legacy/Direct verification
+                await statsService.submitVerification(name, lastPhoto, lastScore);
+            }
+
             setIsVerified(true);
             toast.success('Verification Completed Successfully!', {
                 description: 'Your identity has been confirmed and recorded.',

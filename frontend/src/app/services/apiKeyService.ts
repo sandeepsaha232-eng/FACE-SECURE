@@ -146,4 +146,14 @@ export const apiKeyService = {
         const response = await api.get('/keys/analytics');
         return response.data;
     },
+
+    async createVerificationSession() {
+        const response = await api.post('/verification/session');
+        return response.data;
+    },
+
+    async completeVerificationSession(sessionId: string, data: { status: string; confidence: number; signals: any }) {
+        const response = await api.post(`/verification/session/${sessionId}/complete`, data);
+        return response.data;
+    },
 };
