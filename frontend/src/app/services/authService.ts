@@ -9,7 +9,8 @@ const getApiUrl = () => {
     }
 
     // 2. Local development: proxy configured in vite.config.ts forwards /api to localhost:5000
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    if (typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         return '/api';
     }
 
@@ -36,8 +37,48 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+// Auto-redirect to login on expired token (401)
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401 && error.response?.data?.message === 'Token expired') {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
+export interface UserProfile {
+    _id: string;
+    name: string;
+    email: string;
+    username?: string;
+    profilePhoto?: string;
+    bio?: string;
+    phoneNumber?: string;
+    location?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    preferences?: {
+        language: string;
+        theme: 'light' | 'dark' | 'system';
+        notifications: {
+            email: boolean;
+            push: boolean;
+        };
+        privacy: {
+            profilePublic: boolean;
+        };
+    };
+    createdAt: string;
+    updatedAt: string;
+}
+
 export const authService = {
-    async register(userData: { name: string; email: string; password?: string; faceImage?: string }) {
+    // ... existing methods ...
+    async register(userData: { name: string; email: string; password?: string; username?: string; faceImage?: string }) {
         const response = await api.post('/auth/register', userData);
         if (response.data.token) {
             localStorage.setItem('token', response.data.token);
@@ -69,8 +110,19 @@ export const authService = {
         return response.data;
     },
 
+    async getProfile(): Promise<{ success: boolean; data: UserProfile }> {
+        const response = await api.get('/user/profile');
+        return response.data;
+    },
+
+    async updateProfile(data: Partial<UserProfile>): Promise<{ success: boolean; message: string; data: UserProfile }> {
+        const response = await api.put('/user/profile', data);
+        return response.data;
+    },
+
     logout() {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.href = '/login';
     },
 

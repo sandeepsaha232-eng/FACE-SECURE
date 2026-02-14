@@ -29,7 +29,7 @@ export function LandingPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#071C2F]">
+        <div className="min-h-screen bg-[#0B1C2D]">
             <Navbar onGetStarted={handleGetStarted} onLogin={handleLogin} />
 
             <main>

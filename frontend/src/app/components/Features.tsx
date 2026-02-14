@@ -46,7 +46,7 @@ const features = [
 
 export function Features() {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#0A2A44]">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#050E18]">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -57,11 +57,11 @@ export function Features() {
         >
           <h2 className="text-4xl md:text-5xl mb-4 text-white">
             Powerful Features for{' '}
-            <span className="bg-gradient-to-r from-[#1FB6C9] via-[#3DD5E7] to-[#6FEAFF] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#1A8FCC] via-[#2ECFFF] to-[#5ED8F5] bg-clip-text text-transparent">
               Complete Security
             </span>
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-[#8FAEC6] max-w-2xl mx-auto">
             Everything you need to implement world-class face recognition security in your application
           </p>
         </motion.div>
@@ -75,13 +75,13 @@ export function Features() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className="bg-gradient-to-br from-[#071C2F] to-[#0A2A44] rounded-xl p-6 shadow-lg hover:shadow-xl hover:shadow-[#1FB6C9]/20 transition-all duration-300 border border-[#1FB6C9]/20"
+              className="bg-gradient-to-br from-[#0B1C2D] to-[#050E18] rounded-xl p-6 shadow-lg hover:shadow-xl hover:shadow-[#2ECFFF]/20 transition-all duration-300 border border-[#2ECFFF]/20"
             >
-              <div className="bg-gradient-to-br from-[#1FB6C9] to-[#3DD5E7] w-12 h-12 rounded-lg flex items-center justify-center mb-4 shadow-lg shadow-[#1FB6C9]/30">
-                <feature.icon className="w-6 h-6 text-[#071C2F]" />
+              <div className="bg-gradient-to-br from-[#2ECFFF] to-[#5ED8F5] w-12 h-12 rounded-lg flex items-center justify-center mb-4 shadow-lg shadow-[#2ECFFF]/30">
+                <feature.icon className="w-6 h-6 text-[#0B1C2D]" />
               </div>
               <h3 className="text-xl mb-2 text-white">{feature.title}</h3>
-              <p className="text-gray-400">{feature.description}</p>
+              <p className="text-[#8FAEC6]">{feature.description}</p>
             </motion.div>
           ))}
         </div>

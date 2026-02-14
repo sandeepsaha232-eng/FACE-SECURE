@@ -13,6 +13,7 @@ from services.face_detection import (
     preprocess_face,
     calculate_image_quality
 )
+from services.liveness_detection import check_liveness_advanced as check_liveness
 from models.face_recognition import get_model
 
 app = FastAPI(
@@ -134,6 +135,44 @@ async def generate_embedding_endpoint(request: EmbeddingRequest):
     except HTTPException:
         raise
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/verify-liveness")
+async def verify_liveness_endpoint(request: FaceDetectionRequest):
+    """
+    Verify if the person in the image is real
+    """
+    try:
+        # Convert base64 to image
+        image = base64_to_image(request.image)
+        
+        # Detect face first
+        face_detected, confidence, bbox = detect_face(image)
+        
+        if not face_detected:
+            return {
+                "faceDetected": False,
+                "isLive": False,
+                "score": 0.0
+            }
+        
+        # Extract face for liveness check
+        face_region = extract_face_region(image, bbox)
+        
+        # Check liveness
+        liveness_result = check_liveness(face_region)
+        
+        return {
+            "faceDetected": True,
+            "isLive": liveness_result['isLive'],
+            "score": liveness_result['score'],
+            "lowLight": liveness_result['lowLight'],
+            "metrics": liveness_result['metrics']
+        }
+    except Exception as e:
+        import traceback
+        print(f"❌ Error in verify_liveness: {str(e)}")
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/compare-embeddings", response_model=CompareEmbeddingsResponse)

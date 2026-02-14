@@ -47,7 +47,7 @@ export function FaceSecureLogo() {
                 {[0, 1, 2].map((ring) => (
                     <motion.div
                         key={ring}
-                        className="absolute inset-0 rounded-full border border-[#1FB6C9]/20"
+                        className="absolute inset-0 rounded-full border border-[#2ECFFF]/20"
                         style={{
                             width: `${100 + ring * 15}%`,
                             height: `${100 + ring * 15}%`,
@@ -121,7 +121,7 @@ export function FaceSecureLogo() {
                             y1={facePoints[conn.from].y}
                             x2={facePoints[conn.to].x}
                             y2={facePoints[conn.to].y}
-                            stroke="#1FB6C9"
+                            stroke="#2ECFFF"
                             strokeWidth="0.5"
                             opacity="0.3"
                             initial={{ pathLength: 0, opacity: 0 }}
@@ -137,14 +137,14 @@ export function FaceSecureLogo() {
                     {/* Geometric face outline with gradient */}
                     <defs>
                         <linearGradient id="faceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#3DD5E7" />
-                            <stop offset="50%" stopColor="#1FB6C9" />
-                            <stop offset="100%" stopColor="#6FEAFF" />
+                            <stop offset="0%" stopColor="#2ECFFF" />
+                            <stop offset="50%" stopColor="#2ECFFF" />
+                            <stop offset="100%" stopColor="#5ED8F5" />
                         </linearGradient>
                     </defs>
 
                     <motion.path
-                        d={`M ${facePoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')} Z`}
+                        d={`${facePoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')} Z`}
                         fill="none"
                         stroke="url(#faceGradient)"
                         strokeWidth="2"
@@ -162,7 +162,7 @@ export function FaceSecureLogo() {
                                 cy={point.y}
                                 r="4"
                                 fill="none"
-                                stroke="#6FEAFF"
+                                stroke="#5ED8F5"
                                 strokeWidth="0.5"
                                 initial={{ scale: 0, opacity: 0 }}
                                 animate={{
@@ -181,14 +181,14 @@ export function FaceSecureLogo() {
                                 cx={point.x}
                                 cy={point.y}
                                 r="2"
-                                fill="#6FEAFF"
+                                fill="#5ED8F5"
                                 initial={{ scale: 0, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 transition={{ delay: 1 + index * 0.1, duration: 0.4 }}
                             >
                                 <animate
                                     attributeName="fill"
-                                    values="#6FEAFF;#3DD5E7;#6FEAFF"
+                                    values="#5ED8F5;#2ECFFF;#5ED8F5"
                                     dur="2s"
                                     repeatCount="indefinite"
                                 />
@@ -206,7 +206,7 @@ export function FaceSecureLogo() {
                             cx="38"
                             cy="45"
                             r="3"
-                            fill="#1FB6C9"
+                            fill="#2ECFFF"
                             animate={{ scaleY: [1, 0.1, 1] }}
                             transition={{ delay: 3, duration: 0.3, repeat: Infinity, repeatDelay: 4 }}
                         />
@@ -214,7 +214,7 @@ export function FaceSecureLogo() {
                             cx="62"
                             cy="45"
                             r="3"
-                            fill="#1FB6C9"
+                            fill="#2ECFFF"
                             animate={{ scaleY: [1, 0.1, 1] }}
                             transition={{ delay: 3, duration: 0.3, repeat: Infinity, repeatDelay: 4 }}
                         />
@@ -228,7 +228,7 @@ export function FaceSecureLogo() {
                             y1="50"
                             x2="80"
                             y2="50"
-                            stroke="#6FEAFF"
+                            stroke="#5ED8F5"
                             strokeWidth="0.5"
                             initial={{ y1: 20, y2: 20, opacity: 0 }}
                             animate={{
@@ -253,28 +253,28 @@ export function FaceSecureLogo() {
                             transition={{ duration: 0.6, type: 'spring', bounce: 0.5 }}
                         >
                             {/* Lock glow */}
-                            <circle cx="50" cy="63" r="8" fill="#6FEAFF" opacity="0.2" />
+                            <circle cx="50" cy="63" r="8" fill="#5ED8F5" opacity="0.2" />
                             {/* Lock body */}
                             <rect
                                 x="44"
                                 y="58"
                                 width="12"
                                 height="10"
-                                fill="#1FB6C9"
+                                fill="#2ECFFF"
                                 rx="1"
                             />
                             {/* Lock shackle */}
                             <path
                                 d="M 46 58 L 46 53 Q 46 50, 50 50 Q 54 50, 54 53 L 54 58"
                                 fill="none"
-                                stroke="#1FB6C9"
+                                stroke="#2ECFFF"
                                 strokeWidth="2"
                             />
                             {/* Checkmark inside lock */}
                             <motion.path
                                 d="M 47 62 L 49 64 L 53 60"
                                 fill="none"
-                                stroke="#071C2F"
+                                stroke="#0B1C2D"
                                 strokeWidth="1.5"
                                 strokeLinecap="round"
                                 initial={{ pathLength: 0 }}
@@ -309,7 +309,7 @@ export function FaceSecureLogo() {
                             <motion.path
                                 d="M 2 8 L 2 2 L 8 2"
                                 fill="none"
-                                stroke="#6FEAFF"
+                                stroke="#5ED8F5"
                                 strokeWidth="2"
                                 strokeLinecap="round"
                                 transform={`rotate(${corner.rotate} 12 12)`}
@@ -325,7 +325,7 @@ export function FaceSecureLogo() {
                 {[0, 1, 2, 3, 4, 5].map((particle) => (
                     <motion.div
                         key={`particle-${particle}`}
-                        className="absolute w-1 h-1 bg-[#6FEAFF] rounded-full"
+                        className="absolute w-1 h-1 bg-[#5ED8F5] rounded-full"
                         style={{
                             left: '50%',
                             top: '50%',
@@ -370,7 +370,7 @@ export function FaceSecureLogo() {
                             {'Secure'.split('').map((letter, i) => (
                                 <motion.span
                                     key={`secure-${i}`}
-                                    className="inline-block text-[#6FEAFF]"
+                                    className="inline-block text-[#5ED8F5]"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 2.2 + i * 0.1, duration: 0.3 }}
@@ -383,7 +383,7 @@ export function FaceSecureLogo() {
                 </div>
 
                 <motion.p
-                    className="text-[#3DD5E7] text-sm mt-2"
+                    className="text-[#2ECFFF] text-sm mt-2"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 2.8, duration: 0.6 }}
@@ -398,7 +398,7 @@ export function FaceSecureLogo() {
                     animate={{ width: '100%' }}
                     transition={{ delay: 3, duration: 0.8 }}
                 >
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#1FB6C9] via-[#6FEAFF] to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#2ECFFF] via-[#5ED8F5] to-transparent" />
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent"
                         style={{ width: '30%' }}
@@ -413,7 +413,7 @@ export function FaceSecureLogo() {
                         {[0, 1, 2, 3].map((bar) => (
                             <motion.div
                                 key={`bar-${bar}`}
-                                className="w-1 bg-[#3DD5E7] rounded-full"
+                                className="w-1 bg-[#2ECFFF] rounded-full"
                                 initial={{ height: 0 }}
                                 animate={{
                                     height: [0, Math.random() * 30 + 10, 0],
@@ -450,20 +450,20 @@ export function FaceSecureLogo() {
                         transition={{ delay: item.delay, duration: 0.4 }}
                     >
                         <motion.div
-                            className="w-2 h-2 rounded-full bg-[#6FEAFF] flex-shrink-0"
+                            className="w-2 h-2 rounded-full bg-[#5ED8F5] flex-shrink-0"
                             initial={{ scale: 0 }}
                             animate={{ scale: [0, 1.5, 1] }}
                             transition={{ delay: item.delay + 0.2, duration: 0.5 }}
                         />
-                        <span className="text-xs text-[#3DD5E7] whitespace-nowrap min-w-[60px]">{item.label}</span>
+                        <span className="text-xs text-[#2ECFFF] whitespace-nowrap min-w-[60px]">{item.label}</span>
                         <motion.div
-                            className="w-12 h-0.5 bg-[#1FB6C9] rounded-full overflow-hidden flex-shrink-0"
+                            className="w-12 h-0.5 bg-[#2ECFFF] rounded-full overflow-hidden flex-shrink-0"
                             initial={{ scaleX: 0 }}
                             animate={{ scaleX: 1 }}
                             transition={{ delay: item.delay + 0.3, duration: 0.6 }}
                         >
                             <motion.div
-                                className="w-full h-full bg-[#6FEAFF]"
+                                className="w-full h-full bg-[#5ED8F5]"
                                 animate={{ x: ['-100%', '100%'] }}
                                 transition={{ duration: 1, repeat: Infinity, ease: 'linear', delay: item.delay + 0.9 }}
                             />

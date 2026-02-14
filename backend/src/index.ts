@@ -1,14 +1,18 @@
+import dotenv from 'dotenv';
+// Load environment variables immediately
+dotenv.config();
+
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import { connectDatabase } from './config/database';
 import authRoutes from './routes/auth.routes';
+import userRoutes from './routes/user.routes';
+import statsRoutes from './routes/stats.routes';
+import apiKeyRoutes from './routes/apiKey.routes';
+import verificationRoutes from './routes/verification.routes';
 import { generalLimiter } from './middleware/rateLimit';
 import logger from './utils/logger';
-
-// Load environment variables
-dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -96,6 +100,10 @@ app.get('/api/verify-deployment-v123', (req, res) => res.json({ deployed: true, 
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/keys', apiKeyRoutes);
+app.use('/v1/verification', verificationRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
@@ -127,8 +135,8 @@ const startServer = async () => {
         await connectDatabase();
 
         // Start listening
-        app.listen(PORT, () => {
-            logger.info(`🚀 FaceSecure backend server running on port ${PORT}`);
+        app.listen(Number(PORT), '0.0.0.0', () => {
+            logger.info(`🚀 FaceSecure backend server listening on 0.0.0.0:${PORT}`);
             logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
             logger.info(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
             logger.info(`🤖 ML Service URL: ${process.env.ML_SERVICE_URL || 'http://localhost:8000'}`);

@@ -30,7 +30,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#071C2F] via-[#0A2A44] to-[#071C2F] text-white">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0B1C2D] via-[#050E18] to-[#0B1C2D] text-white">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -42,7 +42,7 @@ export function HowItWorks() {
           <h2 className="text-4xl md:text-5xl mb-4">
             How It Works
           </h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-[#8FAEC6] max-w-2xl mx-auto">
             Our multi-step verification process ensures maximum security while maintaining a seamless user experience
           </p>
         </motion.div>
@@ -59,17 +59,17 @@ export function HowItWorks() {
             >
               {/* Connecting line */}
               {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-[#1FB6C9] to-transparent -z-10" />
+                <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-[#2ECFFF] to-transparent -z-10" />
               )}
 
-              <div className="bg-white/5 backdrop-blur-md border border-[#3DD5E7]/20 rounded-xl p-6 hover:bg-white/10 hover:border-[#6FEAFF]/30 transition-all duration-300">
-                <div className="bg-gradient-to-br from-[#1FB6C9] to-[#3DD5E7] w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-[#1FB6C9]/30">
-                  <step.icon className="w-8 h-8 text-[#071C2F]" />
+              <div className="bg-white/5 backdrop-blur-md border border-[#2ECFFF]/20 rounded-xl p-6 hover:bg-white/10 hover:border-[#5ED8F5]/30 transition-all duration-300">
+                <div className="bg-gradient-to-br from-[#2ECFFF] to-[#5ED8F5] w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-[#2ECFFF]/30">
+                  <step.icon className="w-8 h-8 text-[#0B1C2D]" />
                 </div>
                 
-                <div className="text-sm text-[#3DD5E7] mb-2">{step.step}</div>
+                <div className="text-sm text-[#2ECFFF] mb-2">{step.step}</div>
                 <h3 className="text-2xl mb-3">{step.title}</h3>
-                <p className="text-gray-300 leading-relaxed">{step.description}</p>
+                <p className="text-[#8FAEC6] leading-relaxed">{step.description}</p>
               </div>
 
               {/* Step number badge */}
@@ -78,7 +78,7 @@ export function HowItWorks() {
                 whileInView={{ scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.15 + 0.3, type: "spring", stiffness: 200 }}
-                className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-br from-[#3DD5E7] to-[#6FEAFF] rounded-full flex items-center justify-center text-[#071C2F] shadow-lg shadow-[#6FEAFF]/50 font-bold"
+                className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-br from-[#2ECFFF] to-[#5ED8F5] rounded-full flex items-center justify-center text-[#0B1C2D] shadow-lg shadow-[#5ED8F5]/50 font-bold"
               >
                 {index + 1}
               </motion.div>
@@ -96,7 +96,7 @@ export function HowItWorks() {
                 whileInView={{ scaleY: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="w-1 h-12 bg-gradient-to-b from-[#1FB6C9] to-[#3DD5E7]"
+                className="w-1 h-12 bg-gradient-to-b from-[#2ECFFF] to-[#5ED8F5]"
               />
             ))}
           </div>

@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ILoginAttempt extends Document {
-    ipAddress: string;
     deviceId: string;
     timestamp: Date;
     success: boolean;
@@ -17,11 +16,6 @@ export interface ILoginAttempt extends Document {
 }
 
 const LoginAttemptSchema = new Schema<ILoginAttempt>({
-    ipAddress: {
-        type: String,
-        required: true,
-        index: true,
-    },
     deviceId: {
         type: String,
         required: true,
@@ -51,9 +45,6 @@ const LoginAttemptSchema = new Schema<ILoginAttempt>({
         default: false,
     },
 });
-
-// Index for querying failed attempts
-LoginAttemptSchema.index({ ipAddress: 1, timestamp: -1 });
 
 // TTL index to auto-delete old logs after 90 days
 LoginAttemptSchema.index({ timestamp: 1 }, { expireAfterSeconds: 7776000 });

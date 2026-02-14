@@ -63,7 +63,7 @@ export function Pricing() {
   };
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#0A2A44]">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#050E18]">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -74,11 +74,11 @@ export function Pricing() {
         >
           <h2 className="text-4xl md:text-5xl mb-4 text-white">
             Simple, Transparent{' '}
-            <span className="bg-gradient-to-r from-[#1FB6C9] via-[#3DD5E7] to-[#6FEAFF] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#1A8FCC] via-[#2ECFFF] to-[#5ED8F5] bg-clip-text text-transparent">
               Pricing
             </span>
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-[#8FAEC6] max-w-2xl mx-auto">
             Choose the perfect plan for your needs. All plans include a 14-day free trial.
           </p>
         </motion.div>
@@ -93,8 +93,8 @@ export function Pricing() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
               className={`relative rounded-2xl p-8 border-2 transition-all duration-300 ${plan.popular
-                ? 'border-[#3DD5E7] shadow-2xl shadow-[#1FB6C9]/20 bg-gradient-to-br from-[#071C2F] to-[#0A2A44]'
-                : 'border-[#1FB6C9]/20 shadow-lg hover:shadow-xl hover:border-[#3DD5E7]/40 bg-[#071C2F]'
+                ? 'border-[#2ECFFF] shadow-2xl shadow-[#2ECFFF]/20 bg-gradient-to-br from-[#0B1C2D] to-[#050E18]'
+                : 'border-[#2ECFFF]/20 shadow-lg hover:shadow-xl hover:border-[#2ECFFF]/40 bg-[#0B1C2D]'
                 }`}
             >
               {plan.popular && (
@@ -103,7 +103,7 @@ export function Pricing() {
                   whileInView={{ scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                  className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#1FB6C9] to-[#3DD5E7] text-[#071C2F] px-4 py-1 rounded-full text-sm flex items-center gap-1 shadow-lg shadow-[#1FB6C9]/50 font-semibold"
+                  className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#2ECFFF] to-[#5ED8F5] text-[#0B1C2D] px-4 py-1 rounded-full text-sm flex items-center gap-1 shadow-lg shadow-[#2ECFFF]/50 font-semibold"
                 >
                   <Sparkles className="w-4 h-4" />
                   Most Popular
@@ -114,16 +114,16 @@ export function Pricing() {
                 <h3 className="text-2xl mb-2 text-white">{plan.name}</h3>
                 <div className="flex items-baseline gap-1">
                   <span className="text-5xl text-white">{plan.price}</span>
-                  <span className="text-gray-400">{plan.period}</span>
+                  <span className="text-[#8FAEC6]">{plan.period}</span>
                 </div>
-                <p className="text-gray-400 mt-2">{plan.description}</p>
+                <p className="text-[#8FAEC6] mt-2">{plan.description}</p>
               </div>
 
               <button
                 onClick={handlePlanClick}
                 className={`w-full py-3 rounded-lg transition-all duration-300 mb-6 font-semibold ${plan.popular
-                    ? 'bg-gradient-to-r from-[#1FB6C9] to-[#3DD5E7] hover:from-[#3DD5E7] hover:to-[#6FEAFF] text-[#071C2F] shadow-lg shadow-[#1FB6C9]/30 hover:shadow-xl hover:shadow-[#6FEAFF]/40'
-                    : 'bg-white/10 hover:bg-[#1FB6C9]/20 text-white border border-[#3DD5E7]/30'
+                    ? 'bg-gradient-to-r from-[#2ECFFF] to-[#5ED8F5] hover:from-[#5ED8F5] hover:to-[#8AE8FF] text-[#0B1C2D] shadow-lg shadow-[#2ECFFF]/30 hover:shadow-xl hover:shadow-[#5ED8F5]/40'
+                    : 'bg-white/10 hover:bg-[#2ECFFF]/20 text-white border border-[#2ECFFF]/30'
                   }`}
               >
                 {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
@@ -140,11 +140,11 @@ export function Pricing() {
                     transition={{ delay: index * 0.1 + featureIndex * 0.05 }}
                     className="flex items-start gap-3"
                   >
-                    <div className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${plan.popular ? 'bg-gradient-to-br from-[#1FB6C9] to-[#3DD5E7]' : 'bg-[#1FB6C9]'
+                    <div className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${plan.popular ? 'bg-gradient-to-br from-[#2ECFFF] to-[#5ED8F5]' : 'bg-[#2ECFFF]'
                       }`}>
                       <Check className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-gray-300">{feature}</span>
+                    <span className="text-[#8FAEC6]">{feature}</span>
                   </motion.div>
                 ))}
               </div>
@@ -157,7 +157,7 @@ export function Pricing() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.6 }}
-          className="text-center mt-12 text-gray-400"
+          className="text-center mt-12 text-[#8FAEC6]"
         >
           <p>All plans include 99.9% uptime SLA and GDPR compliance</p>
         </motion.div>

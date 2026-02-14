@@ -18,7 +18,6 @@ export interface IUser extends Document {
     }[];
     loginHistory: {
         timestamp: Date;
-        ipAddress: string;
         deviceId: string;
         authMethod: 'face' | 'password';
         success: boolean;
@@ -27,6 +26,25 @@ export interface IUser extends Document {
     createdAt: Date;
     updatedAt: Date;
     isActive: boolean;
+    // Profile Fields
+    username?: string;
+    profilePhoto?: string;
+    bio?: string;
+    phoneNumber?: string;
+    location?: string;
+    dateOfBirth?: Date;
+    gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say' | '';
+    preferences?: {
+        language: string;
+        theme: 'light' | 'dark' | 'system';
+        notifications: {
+            email: boolean;
+            push: boolean;
+        };
+        privacy: {
+            profilePublic: boolean;
+        };
+    };
     decryptFaceEmbedding(): number[];
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
@@ -72,7 +90,6 @@ const UserSchema = new Schema<IUser>(
                     type: Date,
                     default: Date.now,
                 },
-                ipAddress: String,
                 deviceId: String,
                 authMethod: {
                     type: String,
@@ -85,6 +102,59 @@ const UserSchema = new Schema<IUser>(
         isActive: {
             type: Boolean,
             default: true,
+        },
+        // Profile Fields
+        username: {
+            type: String,
+            unique: true,
+            sparse: true, // Allows null/undefined to not conflict
+            trim: true,
+            minlength: 3,
+        },
+        profilePhoto: {
+            type: String,
+            default: '',
+        },
+        bio: {
+            type: String,
+            maxlength: 500,
+            default: '',
+        },
+        phoneNumber: {
+            type: String,
+            trim: true,
+            default: '',
+        },
+        location: {
+            type: String,
+            trim: true,
+            default: '',
+        },
+        dateOfBirth: {
+            type: Date,
+        },
+        gender: {
+            type: String,
+            enum: ['male', 'female', 'other', 'prefer_not_to_say', ''],
+            default: '',
+        },
+        preferences: {
+            language: {
+                type: String,
+                default: 'en',
+            },
+            theme: {
+                type: String,
+                enum: ['light', 'dark', 'system'],
+                default: 'system',
+            },
+            notifications: {
+                email: { type: Boolean, default: true },
+                push: { type: Boolean, default: true },
+            },
+            privacy: {
+                profilePublic: { type: Boolean, default: false },
+            },
         },
     },
     {
@@ -100,13 +170,18 @@ UserSchema.pre('save', async function (this: any) {
     try {
         // 1. Encrypt Face Embedding if modified
         if (this.isModified('faceEmbedding') && this.faceEmbedding) {
-            // If it's already a string (likely encrypted), skip
-            if (typeof this.faceEmbedding === 'string') {
-                logger.debug('Face embedding already encrypted (string type), skipping encryption');
+            // Check if it looks like it's already encrypted (CryptoJS AES format starts with U2FsdGVkX1)
+            const isAlreadyEncrypted = typeof this.faceEmbedding === 'string' && this.faceEmbedding.startsWith('U2FsdGVkX1');
+
+            if (isAlreadyEncrypted) {
+                logger.debug('Face embedding already encrypted, skipping encryption');
             } else {
                 try {
                     logger.debug('Encrypting new face embedding...');
-                    const dataToEncrypt = JSON.stringify(this.faceEmbedding);
+                    const dataToEncrypt = typeof this.faceEmbedding === 'string'
+                        ? this.faceEmbedding
+                        : JSON.stringify(this.faceEmbedding);
+
                     const encrypted = crypto.AES.encrypt(
                         dataToEncrypt,
                         process.env.ENCRYPTION_KEY || 'default-key'
@@ -157,21 +232,22 @@ UserSchema.methods.decryptFaceEmbedding = function (this: IUser): number[] {
         decryptedData = bytes.toString(crypto.enc.Utf8);
 
         if (!decryptedData) {
-            logger.warn('Decryption returned empty string, possibly wrong key');
+            logger.warn('Decryption returned empty string (wrong key or malformed data)');
             return [];
         }
 
-        // Check if the decrypted data is valid JSON before parsing
-        if (!decryptedData.startsWith('[') && !decryptedData.startsWith('{')) {
-            logger.warn('Decrypted data does not look like JSON:', decryptedData.substring(0, 20));
+        // Final safety check: must be valid JSON to be an embedding array
+        try {
+            return JSON.parse(decryptedData);
+        } catch (parseError) {
+            logger.error('Decrypted data is not valid JSON:', {
+                decryptedPrefix: decryptedData.substring(0, 50)
+            });
             return [];
         }
-
-        return JSON.parse(decryptedData);
     } catch (error: any) {
-        logger.error('Failed to decrypt or parse face embedding:', {
-            error: error.message,
-            decryptedPrefix: decryptedData ? decryptedData.substring(0, 50) : 'none'
+        logger.error('Failed to decrypt face embedding:', {
+            error: error.message
         });
         return [];
     }

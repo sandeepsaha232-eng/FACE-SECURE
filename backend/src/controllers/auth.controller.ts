@@ -1,12 +1,14 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User.model';
 import { LoginAttempt } from '../models/LoginAttempt.model';
+import { Verification } from '../models/Verification.model';
 import faceRecognitionService from '../services/faceRecognition.service';
 import jwt from 'jsonwebtoken';
 import logger from '../utils/logger';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
+logger.info(`Auth Controller initialized with secret length: ${JWT_SECRET.length}`);
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
 
 // Thresholds from environment
 const MIN_MOTION_SCORE = parseFloat(process.env.MIN_MOTION_SCORE || '0.7');
@@ -68,7 +70,6 @@ const validateLivenessData = (livenessData: LivenessData): { valid: boolean; rea
  */
 export const verifyFace = async (req: Request, res: Response): Promise<void> => {
     const startTime = Date.now();
-    const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
 
     try {
         const { faceImage, livenessData, metadata, email }: VerifyFaceRequest = req.body;
@@ -98,7 +99,6 @@ export const verifyFace = async (req: Request, res: Response): Promise<void> => 
         const livenessValidation = validateLivenessData(livenessData);
         if (!livenessValidation.valid) {
             await LoginAttempt.create({
-                ipAddress,
                 deviceId: metadata.deviceId,
                 success: false,
                 failureReason: livenessValidation.reason,
@@ -169,7 +169,6 @@ export const verifyFace = async (req: Request, res: Response): Promise<void> => 
         if (bestSimilarity < FACE_MATCH_MFA_THRESHOLD) {
             // No match
             await LoginAttempt.create({
-                ipAddress,
                 deviceId: metadata.deviceId,
                 success: false,
                 failureReason: 'Face not recognized',
@@ -217,7 +216,6 @@ export const verifyFace = async (req: Request, res: Response): Promise<void> => 
         // Step 17: Update database records
         bestMatch.loginHistory.push({
             timestamp: new Date(),
-            ipAddress,
             deviceId: metadata.deviceId,
             authMethod: 'face',
             success: true,
@@ -225,7 +223,6 @@ export const verifyFace = async (req: Request, res: Response): Promise<void> => 
         await bestMatch.save();
 
         await LoginAttempt.create({
-            ipAddress,
             deviceId: metadata.deviceId,
             success: true,
             userId: bestMatch._id,
@@ -268,7 +265,7 @@ export const verifyFace = async (req: Request, res: Response): Promise<void> => 
  */
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, email, password, faceImage } = req.body;
+        const { name, email, password, faceImage, username } = req.body;
 
         if (!name || !email || !password) {
             res.status(400).json({
@@ -280,14 +277,24 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         }
 
         // Check if user already exists
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
-            res.status(400).json({
-                success: false,
-                error: 'user_exists',
-                message: 'User with this email already exists',
-            });
-            return;
+            if (existingUser.email === email) {
+                res.status(400).json({
+                    success: false,
+                    error: 'user_exists',
+                    message: 'User with this email already exists',
+                });
+                return;
+            }
+            if (username && existingUser.username === username) {
+                res.status(400).json({
+                    success: false,
+                    error: 'username_exists',
+                    message: 'Username is already taken',
+                });
+                return;
+            }
         }
 
         let embedding = undefined;
@@ -309,6 +316,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             name,
             email,
             password, // Will be hashed by pre-save hook
+            username,
             faceEmbedding: embedding,
             isActive: true,
         });
@@ -401,10 +409,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         );
 
         // Update login history
-        const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
         user.loginHistory.push({
             timestamp: new Date(),
-            ipAddress,
             deviceId: 'unknown', // Todo: get device info from headers
             authMethod: 'password',
             success: true,
@@ -429,6 +435,57 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             success: false,
             error: 'server_error',
             message: 'An error occurred during login'
+        });
+    }
+};
+
+/**
+ * Step 19: Submit one-off liveness verification with photo and name
+ */
+export const submitVerification = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { name, faceImage, livenessScore } = req.body;
+
+        if (!name || !faceImage) {
+            res.status(400).json({
+                success: false,
+                message: 'Name and face image are required'
+            });
+            return;
+        }
+
+        const userAgent = req.headers['user-agent'] || 'Unknown';
+        let browserName = 'Other';
+        if (userAgent.includes('Chrome')) browserName = 'Chrome';
+        else if (userAgent.includes('Firefox')) browserName = 'Firefox';
+        else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) browserName = 'Safari';
+        else if (userAgent.includes('Edg')) browserName = 'Edge';
+
+        const verification = new Verification({
+            name,
+            faceImage,
+            livenessScore: livenessScore || 1.0,
+            status: 'verified',
+            browser: browserName
+        });
+
+        await verification.save();
+
+        logger.info(`Liveness verification saved for: ${name}`);
+
+        res.status(201).json({
+            success: true,
+            message: 'Verified successfully. You a alive human',
+            data: {
+                id: verification._id,
+                name: verification.name
+            }
+        });
+    } catch (error: any) {
+        logger.error('Verification submission error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to submit verification'
         });
     }
 };

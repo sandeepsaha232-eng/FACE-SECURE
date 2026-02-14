@@ -16,7 +16,7 @@ export const faceVerificationLimiter = rateLimit({
 // General API rate limiter
 export const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Max 100 requests per 15 minutes
+    max: 1000, // Max 1000 requests per 15 minutes
     message: {
         success: false,
         error: 'rate_limit_exceeded',

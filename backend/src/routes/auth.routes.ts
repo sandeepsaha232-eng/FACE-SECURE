@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { verifyFace, register, login } from '../controllers/auth.controller';
+import { verifyFace, register, login, submitVerification } from '../controllers/auth.controller';
 import { faceVerificationLimiter } from '../middleware/rateLimit';
 
 const router = Router();
@@ -16,10 +16,12 @@ router.post('/register', register);
  */
 router.post('/login', login);
 
-/**
- * POST /api/auth/verify-face
- * Verify face and authenticate user
- */
 router.post('/verify-face', faceVerificationLimiter, verifyFace);
+
+/**
+ * POST /api/auth/submit-verification
+ * Submit a liveness verification result
+ */
+router.post('/submit-verification', submitVerification);
 
 export default router;

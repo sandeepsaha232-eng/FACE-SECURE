@@ -67,7 +67,7 @@ export function PricingSection({ onSelectPlan }: PricingSectionProps) {
         <div className="w-full">
             <div className="text-center mb-12">
                 <h2 className="text-4xl text-white mb-3">Simple, Transparent Pricing</h2>
-                <p className="text-gray-400 text-lg">
+                <p className="text-[#8FAEC6] text-lg">
                     Choose the perfect plan for your needs. All plans include a 14-day free trial.
                 </p>
             </div>

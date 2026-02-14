@@ -7,11 +7,11 @@ interface CTAProps {
 
 export function CTA({ onGetStarted }: CTAProps) {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#071C2F] via-[#0A2A44] to-[#071C2F] text-white relative overflow-hidden">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0B1C2D] via-[#050E18] to-[#0B1C2D] text-white relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute top-0 left-1/4 w-96 h-96 bg-[#1FB6C9] rounded-full mix-blend-screen filter blur-3xl opacity-10"
+          className="absolute top-0 left-1/4 w-96 h-96 bg-[#2ECFFF] rounded-full mix-blend-screen filter blur-3xl opacity-10"
           animate={{
             scale: [1, 1.2, 1],
             x: [0, 50, 0],
@@ -23,7 +23,7 @@ export function CTA({ onGetStarted }: CTAProps) {
           }}
         />
         <motion.div
-          className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#3DD5E7] rounded-full mix-blend-screen filter blur-3xl opacity-10"
+          className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#2ECFFF] rounded-full mix-blend-screen filter blur-3xl opacity-10"
           animate={{
             scale: [1, 1.3, 1],
             x: [0, -50, 0],
@@ -42,9 +42,9 @@ export function CTA({ onGetStarted }: CTAProps) {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-[#3DD5E7]/30 rounded-full px-4 py-2 mb-6"
+          className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-[#2ECFFF]/30 rounded-full px-4 py-2 mb-6"
         >
-          <Shield className="w-4 h-4 text-[#3DD5E7]" />
+          <Shield className="w-4 h-4 text-[#2ECFFF]" />
           <span className="text-sm">14-Day Free Trial • No Credit Card Required</span>
         </motion.div>
 
@@ -63,7 +63,7 @@ export function CTA({ onGetStarted }: CTAProps) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto"
+          className="text-xl text-[#8FAEC6] mb-8 max-w-2xl mx-auto"
         >
           Join thousands of companies using our advanced face recognition technology. 
           Start your free trial today and experience the future of authentication.
@@ -78,12 +78,12 @@ export function CTA({ onGetStarted }: CTAProps) {
         >
           <button
             onClick={onGetStarted}
-            className="bg-gradient-to-r from-[#1FB6C9] to-[#3DD5E7] hover:from-[#3DD5E7] hover:to-[#6FEAFF] text-[#071C2F] px-8 py-4 rounded-lg transition-all duration-300 shadow-lg shadow-[#1FB6C9]/20 hover:shadow-xl hover:shadow-[#6FEAFF]/30 hover:scale-105 flex items-center justify-center gap-2 group font-semibold"
+            className="bg-gradient-to-r from-[#2ECFFF] to-[#5ED8F5] hover:from-[#5ED8F5] hover:to-[#8AE8FF] text-[#0B1C2D] px-8 py-4 rounded-lg transition-all duration-300 shadow-lg shadow-[#2ECFFF]/20 hover:shadow-xl hover:shadow-[#5ED8F5]/30 hover:scale-105 flex items-center justify-center gap-2 group font-semibold"
           >
             Get Started Free
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
-          <button className="bg-white/10 backdrop-blur-sm border border-[#3DD5E7]/30 hover:bg-[#1FB6C9]/20 hover:border-[#6FEAFF]/50 text-white px-8 py-4 rounded-lg transition-all duration-300">
+          <button className="bg-white/10 backdrop-blur-sm border border-[#2ECFFF]/30 hover:bg-[#2ECFFF]/20 hover:border-[#5ED8F5]/50 text-white px-8 py-4 rounded-lg transition-all duration-300">
             Schedule Demo
           </button>
         </motion.div>
@@ -93,7 +93,7 @@ export function CTA({ onGetStarted }: CTAProps) {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-8 text-sm text-gray-400"
+          className="mt-8 text-sm text-[#8FAEC6]"
         >
           Trusted by 150+ enterprises worldwide • GDPR & SOC 2 Compliant
         </motion.div>

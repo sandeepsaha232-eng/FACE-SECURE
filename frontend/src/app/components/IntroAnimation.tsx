@@ -49,14 +49,14 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-[#071C2F] via-[#0A2A44] to-[#071C2F]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-[#0B1C2D] via-[#050E18] to-[#0B1C2D]"
     >
       {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden">
         {showGlow && (
           <>
             <motion.div
-              className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#1FB6C9] rounded-full mix-blend-screen filter blur-3xl opacity-20"
+              className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#2ECFFF] rounded-full mix-blend-screen filter blur-3xl opacity-20"
               animate={{
                 scale: [1, 1.2, 1],
                 x: [0, 50, 0],
@@ -69,7 +69,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
               }}
             />
             <motion.div
-              className="absolute top-1/2 right-1/4 w-96 h-96 bg-[#3DD5E7] rounded-full mix-blend-screen filter blur-3xl opacity-20"
+              className="absolute top-1/2 right-1/4 w-96 h-96 bg-[#2ECFFF] rounded-full mix-blend-screen filter blur-3xl opacity-20"
               animate={{
                 scale: [1, 1.3, 1],
                 x: [0, -30, 0],
@@ -105,7 +105,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
               ease: "easeInOut"
             }}
           >
-            <div className="w-full h-full rounded-full bg-gradient-to-r from-[#1FB6C9] via-[#3DD5E7] to-[#1FB6C9] blur-2xl opacity-50" />
+            <div className="w-full h-full rounded-full bg-gradient-to-r from-[#1A8FCC] via-[#2ECFFF] to-[#5ED8F5] blur-2xl opacity-50" />
           </motion.div>
         )}
 
@@ -135,9 +135,9 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
               />
               <defs>
                 <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1FB6C9" />
-                  <stop offset="50%" stopColor="#3DD5E7" />
-                  <stop offset="100%" stopColor="#6FEAFF" />
+                  <stop offset="0%" stopColor="#2ECFFF" />
+                  <stop offset="50%" stopColor="#2ECFFF" />
+                  <stop offset="100%" stopColor="#5ED8F5" />
                 </linearGradient>
               </defs>
             </svg>
@@ -160,7 +160,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
             ease: "easeInOut"
           }}
         >
-          <Shield className="w-full h-full text-[#3DD5E7]" />
+          <Shield className="w-full h-full text-[#2ECFFF]" />
         </motion.div>
 
         {/* Orbiting particles */}
@@ -169,7 +169,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
             {[...Array(8)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute top-1/2 left-1/2 w-2 h-2 bg-[#6FEAFF] rounded-full shadow-[0_0_10px_rgba(111,234,255,0.8)]"
+                className="absolute top-1/2 left-1/2 w-2 h-2 bg-[#5ED8F5] rounded-full shadow-[0_0_10px_rgba(111,234,255,0.8)]"
                 style={{
                   originX: 0.5,
                   originY: 0.5,
@@ -230,7 +230,7 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
-                className="w-2 h-2 bg-[#3DD5E7] rounded-full shadow-[0_0_8px_rgba(61,213,231,0.6)]"
+                className="w-2 h-2 bg-[#2ECFFF] rounded-full shadow-[0_0_8px_rgba(61,213,231,0.6)]"
                 animate={{
                   y: [0, -10, 0],
                   opacity: [0.5, 1, 0.5]

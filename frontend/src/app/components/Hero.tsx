@@ -7,11 +7,11 @@ interface HeroProps {
 
 export function Hero({ onGetStarted }: HeroProps) {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#071C2F] via-[#0A2A44] to-[#071C2F]">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0B1C2D] via-[#050E18] to-[#0B1C2D]">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute top-20 left-10 w-72 h-72 bg-[#1FB6C9] rounded-full mix-blend-screen filter blur-xl opacity-10"
+          className="absolute top-20 left-10 w-72 h-72 bg-[#2ECFFF] rounded-full mix-blend-screen filter blur-xl opacity-10"
           animate={{
             scale: [1, 1.2, 1],
             x: [0, 50, 0],
@@ -24,7 +24,7 @@ export function Hero({ onGetStarted }: HeroProps) {
           }}
         />
         <motion.div
-          className="absolute top-40 right-10 w-72 h-72 bg-[#3DD5E7] rounded-full mix-blend-screen filter blur-xl opacity-10"
+          className="absolute top-40 right-10 w-72 h-72 bg-[#2ECFFF] rounded-full mix-blend-screen filter blur-xl opacity-10"
           animate={{
             scale: [1, 1.3, 1],
             x: [0, -30, 0],
@@ -37,7 +37,7 @@ export function Hero({ onGetStarted }: HeroProps) {
           }}
         />
         <motion.div
-          className="absolute -bottom-20 left-1/2 w-72 h-72 bg-[#6FEAFF] rounded-full mix-blend-screen filter blur-xl opacity-10"
+          className="absolute -bottom-20 left-1/2 w-72 h-72 bg-[#5ED8F5] rounded-full mix-blend-screen filter blur-xl opacity-10"
           animate={{
             scale: [1, 1.1, 1],
             x: [0, -50, 0],
@@ -77,7 +77,7 @@ export function Hero({ onGetStarted }: HeroProps) {
               className="text-5xl md:text-6xl lg:text-7xl mb-6 leading-tight"
             >
               Secure Your World with{' '}
-              <span className="bg-gradient-to-r from-[#1FB6C9] via-[#3DD5E7] to-[#6FEAFF] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#1A8FCC] via-[#2ECFFF] to-[#5ED8F5] bg-clip-text text-transparent">
                 Face Recognition
               </span>
             </motion.h1>
@@ -86,7 +86,7 @@ export function Hero({ onGetStarted }: HeroProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed"
+              className="text-lg md:text-xl text-[#8FAEC6] mb-8 leading-relaxed"
             >
               Experience the next generation of security with our advanced multi-step face recognition system. 
               Powered by AI, designed for your peace of mind.
@@ -100,11 +100,11 @@ export function Hero({ onGetStarted }: HeroProps) {
             >
               <button
                 onClick={onGetStarted}
-                className="bg-gradient-to-r from-[#1FB6C9] to-[#3DD5E7] hover:from-[#3DD5E7] hover:to-[#6FEAFF] text-[#071C2F] px-8 py-4 rounded-lg transition-all duration-300 shadow-lg shadow-[#1FB6C9]/20 hover:shadow-xl hover:shadow-[#6FEAFF]/30 hover:scale-105 font-semibold"
+                className="bg-gradient-to-r from-[#2ECFFF] to-[#5ED8F5] hover:from-[#5ED8F5] hover:to-[#8AE8FF] text-[#0B1C2D] px-8 py-4 rounded-lg transition-all duration-300 shadow-lg shadow-[#2ECFFF]/20 hover:shadow-xl hover:shadow-[#5ED8F5]/30 hover:scale-105 font-semibold"
               >
                 Get Started Free
               </button>
-              <button className="bg-white/10 backdrop-blur-sm border border-[#3DD5E7]/30 hover:bg-[#1FB6C9]/20 hover:border-[#6FEAFF]/50 text-white px-8 py-4 rounded-lg transition-all duration-300">
+              <button className="bg-white/10 backdrop-blur-sm border border-[#2ECFFF]/30 hover:bg-[#2ECFFF]/20 hover:border-[#5ED8F5]/50 text-white px-8 py-4 rounded-lg transition-all duration-300">
                 Watch Demo
               </button>
             </motion.div>
@@ -121,8 +121,8 @@ export function Hero({ onGetStarted }: HeroProps) {
                 { icon: Zap, text: 'Instant Verification' }
               ].map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
-                  <item.icon className="w-5 h-5 text-[#3DD5E7]" />
-                  <span className="text-sm text-gray-300">{item.text}</span>
+                  <item.icon className="w-5 h-5 text-[#2ECFFF]" />
+                  <span className="text-sm text-[#8FAEC6]">{item.text}</span>
                 </div>
               ))}
             </motion.div>
@@ -148,10 +148,10 @@ export function Hero({ onGetStarted }: HeroProps) {
                   ease: "easeInOut"
                 }}
               >
-                <div className="relative w-80 h-80 bg-gradient-to-br from-[#1FB6C9]/10 to-[#3DD5E7]/10 backdrop-blur-lg border-2 border-[#3DD5E7]/30 rounded-3xl flex items-center justify-center shadow-2xl shadow-[#1FB6C9]/10">
+                <div className="relative w-80 h-80 bg-gradient-to-br from-[#2ECFFF]/10 to-[#2ECFFF]/10 backdrop-blur-lg border-2 border-[#2ECFFF]/30 rounded-3xl flex items-center justify-center shadow-2xl shadow-[#2ECFFF]/10">
                   {/* Scanning lines effect */}
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-b from-transparent via-[#6FEAFF]/20 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-b from-transparent via-[#5ED8F5]/20 to-transparent"
                     animate={{
                       y: ['-100%', '200%'],
                     }}
@@ -163,14 +163,14 @@ export function Hero({ onGetStarted }: HeroProps) {
                   />
                   
                   {/* Face outline */}
-                  <div className="relative w-64 h-64 border-4 border-dashed border-[#1FB6C9]/40 rounded-full flex items-center justify-center">
-                    <div className="w-48 h-48 bg-gradient-to-br from-[#1FB6C9]/20 to-[#3DD5E7]/20 rounded-full" />
+                  <div className="relative w-64 h-64 border-4 border-dashed border-[#2ECFFF]/40 rounded-full flex items-center justify-center">
+                    <div className="w-48 h-48 bg-gradient-to-br from-[#2ECFFF]/20 to-[#2ECFFF]/20 rounded-full" />
                     
                     {/* Corner brackets */}
                     {[0, 90, 180, 270].map((rotation, i) => (
                       <motion.div
                         key={i}
-                        className="absolute w-12 h-12 border-t-4 border-l-4 border-[#6FEAFF]"
+                        className="absolute w-12 h-12 border-t-4 border-l-4 border-[#5ED8F5]"
                         style={{
                           top: '10%',
                           left: '10%',
@@ -199,7 +199,7 @@ export function Hero({ onGetStarted }: HeroProps) {
                       repeat: Infinity,
                       repeatDelay: 3
                     }}
-                    className="absolute -top-4 -right-4 bg-gradient-to-br from-[#1FB6C9] to-[#3DD5E7] rounded-full p-3 shadow-lg shadow-[#6FEAFF]/50"
+                    className="absolute -top-4 -right-4 bg-gradient-to-br from-[#2ECFFF] to-[#5ED8F5] rounded-full p-3 shadow-lg shadow-[#5ED8F5]/50"
                   >
                     <CheckCircle className="w-8 h-8 text-white" />
                   </motion.div>
