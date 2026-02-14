@@ -8,6 +8,8 @@ import { Toaster } from '../ui/sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { User as UserIcon, Activity, Globe, ChevronRight, ShieldAlert } from 'lucide-react';
 import { UserProfileModal } from './UserProfileModal';
+import { apiKeyService } from '../../services/apiKeyService';
+import { toast } from 'sonner';
 
 export function DashboardPage() {
     const [selectedPlan, setSelectedPlan] = useState<string | null>(() => {
@@ -196,10 +198,15 @@ export function DashboardPage() {
                                                     </div>
                                                 </div>
                                                 <button
-                                                    onClick={() => {
-                                                        const baseUrl = window.location.origin;
-                                                        const link = `${baseUrl}/verify?ref=client_${Math.random().toString(36).substring(7)}`;
-                                                        // This would normally be handled by the WebsiteLinkReport component or similar
+                                                    onClick={async () => {
+                                                        try {
+                                                            const response = await apiKeyService.createVerificationSession();
+                                                            toast.success('Secure link generated! It will appear in the report below.');
+                                                            // The report below (WebsiteLinkReport) polls for data, 
+                                                            // so it should pick up the new session automatically if it's connected.
+                                                        } catch (error) {
+                                                            toast.error('Failed to generate link');
+                                                        }
                                                     }}
                                                     className="px-6 py-2 rounded-lg bg-[#2ECFFF] hover:bg-[#5ED8F5] text-[#0B1C2D] text-xs font-bold transition-all"
                                                 >
