@@ -1,7 +1,7 @@
 providers = ["python"]
 
 [phases.setup]
-nixPkgs = ["python310", "gcc", "cmake"]
+nixPkgs = ["python310", "gcc", "cmake", "mesa", "libglvnd", "glib"]
 
 [phases.install]
 cmds = ["python -m venv /opt/venv && . /opt/venv/bin/activate && pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt"]
