@@ -178,9 +178,7 @@ export function UserProfileModal({ isOpen, onClose }: UserProfileModalProps) {
                                         {/* Mobile Logout Button */}
                                         <button
                                             onClick={() => {
-                                                if (window.confirm('Are you sure you want to log out?')) {
-                                                    authService.logout();
-                                                }
+                                                authService.logout();
                                             }}
                                             className="md:hidden flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all whitespace-nowrap border border-red-500/20"
                                         >
@@ -193,9 +191,7 @@ export function UserProfileModal({ isOpen, onClose }: UserProfileModalProps) {
                                     <div className="hidden md:block pt-4 mt-4 border-t border-[#2ECFFF]/10">
                                         <button
                                             onClick={() => {
-                                                if (window.confirm('Are you sure you want to log out?')) {
-                                                    authService.logout();
-                                                }
+                                                authService.logout();
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
                                         >

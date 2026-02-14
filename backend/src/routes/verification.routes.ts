@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { createSession, getSession, completeSession } from '../controllers/verification.controller';
-import { authenticateApiKey } from '../middleware/apiKeyAuth';
+import { authenticateApiKeyOrUser } from '../middleware/apiKeyAuth';
 
 const router = Router();
 
-// All routes require API key authentication
-router.use(authenticateApiKey);
+// All routes require API key OR User Token (with active API key) authentication
+router.use(authenticateApiKeyOrUser);
 
 // POST /v1/verification/session — Create a verification session
 router.post('/session', createSession);

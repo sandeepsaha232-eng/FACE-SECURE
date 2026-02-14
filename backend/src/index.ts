@@ -103,7 +103,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/keys', apiKeyRoutes);
-app.use('/v1/verification', verificationRoutes);
+app.use('/api/verification', verificationRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

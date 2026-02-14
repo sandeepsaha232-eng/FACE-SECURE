@@ -1,10 +1,10 @@
 providers = ["python"]
 
 [phases.setup]
-nixPkgs = ["python310", "gcc", "cmake", "mesa", "libglvnd", "glib"]
+nixPkgs = ["python310", "gcc", "cmake", "mesa", "libglvnd", "glib", "libSM", "libXext", "libXrender"]
 
 [phases.install]
-cmds = ["python -m venv /opt/venv && . /opt/venv/bin/activate && pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt"]
+cmds = ["python -m venv /opt/venv && . /opt/venv/bin/activate && pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt && pip uninstall -y opencv-python opencv-contrib-python || true && pip install opencv-python-headless==4.9.0.80"]
 
 [start]
 cmd = "python main.py"
