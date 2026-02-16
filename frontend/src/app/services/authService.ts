@@ -82,8 +82,10 @@ export const authService = {
         const response = await api.post('/auth/register', userData);
         if (response.data.token) {
             localStorage.setItem('token', response.data.token);
+            localStorage.setItem('authToken', response.data.token); // Store as authToken too
             if (response.data.user) {
                 localStorage.setItem('user', JSON.stringify(response.data.user));
+                localStorage.setItem('userId', response.data.user.id || response.data.user._id);
             }
         }
         return response.data;
@@ -94,6 +96,11 @@ export const authService = {
         const response = await api.post('/auth/login', data);
         if (response.data.token) {
             localStorage.setItem('token', response.data.token);
+            localStorage.setItem('authToken', response.data.token);
+            if (response.data.user) {
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+                localStorage.setItem('userId', response.data.user.id || response.data.user._id);
+            }
         }
         return response.data;
     },
@@ -122,7 +129,10 @@ export const authService = {
 
     logout() {
         localStorage.removeItem('token');
+        localStorage.removeItem('authToken');
         localStorage.removeItem('user');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('apiKey'); // Clear any cached API key data
         window.location.href = '/login';
     },
 

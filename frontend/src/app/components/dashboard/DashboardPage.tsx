@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PricingSection } from './PricingSection';
 import { VerifiedShieldLogo } from './VerifiedShieldLogo';
 import { IntegrationSelection } from './IntegrationSelection';
@@ -19,8 +20,15 @@ export function DashboardPage() {
     const [user, setUser] = useState<any>(null);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [activeIntegration, setActiveIntegration] = useState<'api' | 'link'>('api');
+    const navigate = useNavigate();
 
     useEffect(() => {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+
         const stored = localStorage.getItem('user');
         if (stored) {
             try {
