@@ -11,7 +11,11 @@ export const connectDatabase = async (): Promise<void> => {
             return;
         }
 
-        await mongoose.connect(MONGODB_URI);
+        await mongoose.connect(MONGODB_URI, {
+            maxPoolSize: 10,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+        });
         console.log('✅ MongoDB connected successfully');
     } catch (error) {
         console.error('❌ MongoDB connection error:', error);

@@ -13,6 +13,19 @@ const getApiUrl = () => {
 
 const API_URL = getApiUrl();
 
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchWithRetry(fn: () => Promise<any>, retries = 3, delay = 1000): Promise<any> {
+    try {
+        return await fn();
+    } catch (error) {
+        if (retries === 0) throw error;
+        await wait(delay);
+        return fetchWithRetry(fn, retries - 1, delay * 2);
+    }
+}
+
+
 const api = axios.create({
     baseURL: API_URL,
     headers: { 'Content-Type': 'application/json' },
@@ -148,8 +161,10 @@ export const apiKeyService = {
     },
 
     async createVerificationSession() {
-        const response = await api.post('/verification/session');
-        return response.data;
+        return fetchWithRetry(async () => {
+            const response = await api.post('/verification/session');
+            return response.data;
+        });
     },
 
     async completeVerificationSession(sessionId: string, data: { status: string; confidence: number; signals: any }) {

@@ -21,7 +21,7 @@ export const createSession = async (req: ApiKeyRequest, res: Response): Promise<
         }
 
         const sessionId = generateSessionId();
-        const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+        const baseUrl = (process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
         const verificationUrl = `${baseUrl}/verify?session=${sessionId}`;
         const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 min
 

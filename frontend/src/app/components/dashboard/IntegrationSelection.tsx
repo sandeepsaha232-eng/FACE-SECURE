@@ -18,8 +18,10 @@ interface IntegrationSelectionProps {
 export function IntegrationSelection({ onBack, onSelectMethod, planName, autoShowApi }: IntegrationSelectionProps) {
     const [generatedLink, setGeneratedLink] = useState<string | null>(null);
     const [showApiDashboard, setShowApiDashboard] = useState(autoShowApi || false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleGenerateLink = async () => {
+        setIsLoading(true);
         try {
             const response = await apiKeyService.createVerificationSession();
             // Backend returns verification_url which includes the session ID
@@ -28,6 +30,8 @@ export function IntegrationSelection({ onBack, onSelectMethod, planName, autoSho
         } catch (error) {
             console.error('Failed to create session:', error);
             toast.error('Failed to generate secure link. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -180,9 +184,10 @@ export function IntegrationSelection({ onBack, onSelectMethod, planName, autoSho
                                     <div className="mt-auto">
                                         <Button
                                             onClick={handleGenerateLink}
-                                            className="w-full bg-[#2ECFFF] hover:bg-[#2ECFFF] text-[#0B1C2D] font-bold py-6 text-lg"
+                                            disabled={isLoading}
+                                            className="w-full bg-[#2ECFFF] hover:bg-[#2ECFFF] text-[#0B1C2D] font-bold py-6 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            Generate Link
+                                            {isLoading ? 'Generating...' : 'Generate Link'}
                                         </Button>
                                     </div>
                                 </div>
