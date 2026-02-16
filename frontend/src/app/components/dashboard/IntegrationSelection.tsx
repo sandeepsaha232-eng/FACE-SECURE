@@ -25,6 +25,7 @@ export function IntegrationSelection({ onBack, onSelectMethod, planName, autoSho
         try {
             const response = await apiKeyService.createVerificationSession();
             // Backend returns verification_url which includes the session ID
+            console.log('Generated link:', response.verification_url);
             setGeneratedLink(response.verification_url);
             toast.success('Secure verification session created!');
         } catch (error) {
