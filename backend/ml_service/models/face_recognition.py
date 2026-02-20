@@ -1,14 +1,10 @@
 import numpy as np
-import torch
 from typing import List
 import os
 import gc
 
-# Memory optimizations for constrained environments (Railway)
-torch.set_num_threads(1)
-torch.set_num_interop_threads(1)
-if hasattr(torch, 'set_grad_enabled'):
-    torch.set_grad_enabled(False)
+# NOTE: torch is NOT imported at module level to save memory at startup.
+# It is lazy-loaded inside FaceEmbeddingModel._ensure_model_loaded()
 
 
 class FaceEmbeddingModel:
@@ -16,14 +12,36 @@ class FaceEmbeddingModel:
     
     def __init__(self):
         """Initialize the model reference (model loads lazily on first use)"""
-        self.device = torch.device('cpu')  # Force CPU to save memory
+        self.device = None
         self.model = None
+        self._torch = None
         print(f"✅ FaceEmbeddingModel initialized (model will load on first use)")
+    
+    def _ensure_torch(self):
+        """Lazy-import torch and configure it"""
+        if self._torch is not None:
+            return self._torch
+        
+        import torch
+        self._torch = torch
+        
+        # Memory optimizations for constrained environments (Railway)
+        torch.set_num_threads(1)
+        try:
+            torch.set_num_interop_threads(1)
+        except RuntimeError:
+            pass  # Already set or threads already created
+        torch.set_grad_enabled(False)
+        
+        self.device = torch.device('cpu')
+        return torch
     
     def _ensure_model_loaded(self):
         """Lazy-load the FaceNet model only when first needed"""
         if self.model is not None:
             return
+        
+        torch = self._ensure_torch()
         
         print("⏳ Loading FaceNet model (first request)...")
         try:
@@ -47,6 +65,7 @@ class FaceEmbeddingModel:
             512-dimensional embedding vector
         """
         self._ensure_model_loaded()
+        torch = self._torch
         
         # Convert to tensor
         face_tensor = torch.from_numpy(face_image).permute(2, 0, 1).unsqueeze(0).float()
@@ -80,7 +99,7 @@ class FaceEmbeddingModel:
         Returns:
             Similarity score (0-1, higher is more similar)
         """
-        # Cosine similarity
+        # Cosine similarity (numpy only, no torch needed)
         similarity = np.dot(embedding1, embedding2) / (
             np.linalg.norm(embedding1) * np.linalg.norm(embedding2)
         )

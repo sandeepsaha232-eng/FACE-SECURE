@@ -21,7 +21,7 @@ const getMlUrl = () => {
         (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         return 'http://localhost:8000';
     }
-    return 'https://face-secure-ml-production.up.railway.app';
+    return 'https://facesecure-mlservices-production.up.railway.app';
 };
 
 const ML_URL = getMlUrl();

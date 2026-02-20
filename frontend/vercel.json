@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://face-secure-backend-production.up.railway.app https://face-secure-ml-production.up.railway.app https://*.railway.app https://*.vercel.app;"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://face-secure-backend-production.up.railway.app https://facesecure-mlservices-production.up.railway.app https://*.railway.app https://*.vercel.app;"
         }
       ]
     }
