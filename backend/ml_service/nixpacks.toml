@@ -1,13 +1,13 @@
 providers = ["python"]
 
 [phases.setup]
-nixPkgs = ["python310", "gcc", "cmake"]
+nixPkgs = ["python310", "gcc", "cmake", "libGL", "glib"]
 
 [variables]
 PIP_NO_CACHE_DIR = "1"
 
 [phases.install]
-cmds = ["python -m venv /opt/venv && . /opt/venv/bin/activate && pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt && python scripts/download_models.py"]
+cmds = ["python -m venv /opt/venv && . /opt/venv/bin/activate && pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt && pip uninstall -y opencv-python 2>/dev/null; pip install opencv-python-headless && python scripts/download_models.py"]
 
 [phases.build]
 cmds = ["true"]
