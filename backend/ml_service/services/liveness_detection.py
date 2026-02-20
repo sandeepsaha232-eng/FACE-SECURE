@@ -4,22 +4,34 @@ from scipy.fft import fft2, fftshift
 from typing import Dict, Any, List
 import time
 import os
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
 
-# Lazy-loaded MediaPipe Tasks Face Landmarker
+# NOTE: mediapipe is NOT imported at module level to avoid cv2/libGL crash on Railway
+# It is lazy-loaded inside _get_landmarker() on first use
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(current_dir, "..", "models", "face_landmarker.task")
 
 _landmarker = None
+_mp_vision = None
+
+def _get_mp_vision():
+    """Lazy-import mediapipe.tasks to avoid module-level cv2 import"""
+    global _mp_vision
+    if _mp_vision is not None:
+        return _mp_vision
+    from mediapipe.tasks.python import vision
+    _mp_vision = vision
+    return _mp_vision
 
 def _get_landmarker():
     """Lazy-load the MediaPipe Face Landmarker on first use"""
     global _landmarker
     if _landmarker is not None:
         return _landmarker
+    vision = _get_mp_vision()
+    from mediapipe.tasks import python as mp_python
     if os.path.exists(model_path):
-        base_options = python.BaseOptions(model_asset_path=model_path)
+        base_options = mp_python.BaseOptions(model_asset_path=model_path)
         options = vision.FaceLandmarkerOptions(
             base_options=base_options,
             output_face_blendshapes=True,
@@ -71,6 +83,7 @@ class LivenessAnalyzer:
         if landmarker is None:
             return 0.5
 
+        vision = _get_mp_vision()
         mp_image = vision.MPImage(image_format=vision.ImageFormat.SRGB, data=image)
         result = landmarker.detect(mp_image)
         
@@ -97,6 +110,7 @@ class LivenessAnalyzer:
         if landmarker is None:
             return 0.5
 
+        vision = _get_mp_vision()
         mp_image = vision.MPImage(image_format=vision.ImageFormat.SRGB, data=image)
         result = landmarker.detect(mp_image)
         
@@ -215,4 +229,3 @@ def check_liveness_advanced(image: np.ndarray, session_id: str = "default") -> D
         'lowLight': bool(low_light),
         'metrics': scores
     }
-

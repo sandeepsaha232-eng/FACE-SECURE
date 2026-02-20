@@ -4,22 +4,34 @@ import io
 import base64
 from typing import Tuple, Optional
 import os
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
 
 # Lazy-loaded MediaPipe Tasks Face Detector
+# NOTE: mediapipe is NOT imported at module level to avoid cv2/libGL crash on Railway
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(current_dir, "..", "models", "blaze_face_short_range.tflite")
 
 _detector = None
+_mp_vision = None
+
+def _get_mp_vision():
+    """Lazy-import mediapipe.tasks to avoid module-level cv2 import"""
+    global _mp_vision
+    if _mp_vision is not None:
+        return _mp_vision
+    from mediapipe.tasks import python as mp_python
+    from mediapipe.tasks.python import vision
+    _mp_vision = vision
+    return _mp_vision
 
 def _get_detector():
     """Lazy-load the MediaPipe Face Detector on first use"""
     global _detector
     if _detector is not None:
         return _detector
+    vision = _get_mp_vision()
+    from mediapipe.tasks import python as mp_python
     if os.path.exists(model_path):
-        base_options = python.BaseOptions(model_asset_path=model_path)
+        base_options = mp_python.BaseOptions(model_asset_path=model_path)
         options = vision.FaceDetectorOptions(base_options=base_options)
         _detector = vision.FaceDetector.create_from_options(options)
         print("✅ MediaPipe Face Detector loaded")
@@ -55,6 +67,7 @@ def detect_face(image: np.ndarray) -> Tuple[bool, float, Optional[dict]]:
     if detector is None:
         return False, 0.0, None
 
+    vision = _get_mp_vision()
     # MediaPipe Tasks expects MPImage
     mp_image = vision.MPImage(image_format=vision.ImageFormat.SRGB, data=image)
     
@@ -143,4 +156,3 @@ def calculate_image_quality(image: np.ndarray) -> float:
         quality *= 0.7
     
     return float(quality)
-
