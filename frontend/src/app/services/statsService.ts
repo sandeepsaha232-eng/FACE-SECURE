@@ -1,9 +1,30 @@
 import axios from 'axios';
 
-// @ts-ignore
-const API_URL = import.meta.env?.VITE_API_URL || 'http://localhost:5000/api';
+const getApiUrl = () => {
+    // @ts-ignore
+    const envUrl = import.meta.env?.VITE_API_URL;
+    if (envUrl) return envUrl;
+    if (typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        return 'http://localhost:5000/api';
+    }
+    return 'https://face-secure-backend-production.up.railway.app/api';
+};
 
-const ML_URL = 'http://localhost:8000';
+const API_URL = getApiUrl();
+
+const getMlUrl = () => {
+    // @ts-ignore
+    const envUrl = import.meta.env?.VITE_ML_URL;
+    if (envUrl) return envUrl;
+    if (typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        return 'http://localhost:8000';
+    }
+    return 'https://face-secure-ml-production.up.railway.app';
+};
+
+const ML_URL = getMlUrl();
 
 export const statsService = {
     async getStats() {

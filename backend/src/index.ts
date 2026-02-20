@@ -24,6 +24,7 @@ app.use(helmet({
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
             "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
             "img-src": ["'self'", "data:", "https:"],
+            "connect-src": ["'self'", "https://*.railway.app", "https://*.vercel.app", "https://face-secure-ml-production.up.railway.app", "http://localhost:*"],
         },
     },
 }));
