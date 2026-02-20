@@ -7,18 +7,25 @@ import os
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
-# Initialize MediaPipe Tasks Face Detector
+# Lazy-loaded MediaPipe Tasks Face Detector
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(current_dir, "..", "models", "blaze_face_short_range.tflite")
 
-# Check if model exists (for local testing/fallback)
-if os.path.exists(model_path):
-    base_options = python.BaseOptions(model_asset_path=model_path)
-    options = vision.FaceDetectorOptions(base_options=base_options)
-    detector = vision.FaceDetector.create_from_options(options)
-else:
-    print(f"⚠️ MediaPipe model not found at {model_path}. Face detection will be limited.")
-    detector = None
+_detector = None
+
+def _get_detector():
+    """Lazy-load the MediaPipe Face Detector on first use"""
+    global _detector
+    if _detector is not None:
+        return _detector
+    if os.path.exists(model_path):
+        base_options = python.BaseOptions(model_asset_path=model_path)
+        options = vision.FaceDetectorOptions(base_options=base_options)
+        _detector = vision.FaceDetector.create_from_options(options)
+        print("✅ MediaPipe Face Detector loaded")
+    else:
+        print(f"⚠️ MediaPipe model not found at {model_path}. Face detection will be limited.")
+    return _detector
 
 def base64_to_image(base64_string: str) -> np.ndarray:
     """Convert base64 string to RGB numpy array using PIL"""
@@ -44,6 +51,7 @@ def detect_face(image: np.ndarray) -> Tuple[bool, float, Optional[dict]]:
     Detect face in image using MediaPipe Tasks
     Returns: (face_detected, confidence, bounding_box)
     """
+    detector = _get_detector()
     if detector is None:
         return False, 0.0, None
 

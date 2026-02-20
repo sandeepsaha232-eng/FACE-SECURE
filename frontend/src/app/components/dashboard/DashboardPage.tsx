@@ -20,6 +20,8 @@ export function DashboardPage() {
     const [user, setUser] = useState<any>(null);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [activeIntegration, setActiveIntegration] = useState<'api' | 'link'>('api');
+    const [generatedLink, setGeneratedLink] = useState<string | null>(null);
+    const [isGeneratingLink, setIsGeneratingLink] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -207,22 +209,28 @@ export function DashboardPage() {
                                                 </div>
                                                 <button
                                                     onClick={async () => {
+                                                        setIsGeneratingLink(true);
                                                         try {
                                                             const response = await apiKeyService.createVerificationSession();
-                                                            toast.success('Secure link generated! It will appear in the report below.');
-                                                            // The report below (WebsiteLinkReport) polls for data, 
-                                                            // so it should pick up the new session automatically if it's connected.
+                                                            setGeneratedLink(response.verification_url);
+                                                            toast.success('Secure verification link generated!');
                                                         } catch (error) {
                                                             toast.error('Failed to generate link');
+                                                        } finally {
+                                                            setIsGeneratingLink(false);
                                                         }
                                                     }}
-                                                    className="px-6 py-2 rounded-lg bg-[#2ECFFF] hover:bg-[#5ED8F5] text-[#0B1C2D] text-xs font-bold transition-all"
+                                                    disabled={isGeneratingLink}
+                                                    className="px-6 py-2 rounded-lg bg-[#2ECFFF] hover:bg-[#5ED8F5] text-[#0B1C2D] text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
-                                                    Generate New Link
+                                                    {isGeneratingLink ? 'Generating...' : 'Generate New Link'}
                                                 </button>
                                             </div>
                                         </div>
-                                        <WebsiteLinkReport />
+                                        <WebsiteLinkReport
+                                            generatedLink={generatedLink}
+                                            onReset={() => setGeneratedLink(null)}
+                                        />
                                     </div>
                                 )}
                             </motion.div>

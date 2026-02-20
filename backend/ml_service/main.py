@@ -56,13 +56,14 @@ class CompareEmbeddingsResponse(BaseModel):
     match: bool
     confidence: str  # 'high', 'medium', 'low'
 
-# Initialize model on startup
+# Initialize model on startup (lightweight — actual model loads lazily on first request)
 @app.on_event("startup")
 async def startup_event():
-    """Load ML models on startup"""
+    """Startup event — models load lazily on first request to save memory"""
     print("🚀 Starting FaceSecure ML Service...")
-    get_model()  # Initialize the model
-    print("✅ ML Service ready!")
+    print("✅ ML Service ready! (Models will load on first request)")
+    import gc
+    gc.collect()
 
 @app.get("/")
 async def root():

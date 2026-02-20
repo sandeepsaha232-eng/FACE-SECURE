@@ -7,22 +7,30 @@ import os
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
-# Initialize MediaPipe Tasks Face Landmarker
+# Lazy-loaded MediaPipe Tasks Face Landmarker
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(current_dir, "..", "models", "face_landmarker.task")
 
-if os.path.exists(model_path):
-    base_options = python.BaseOptions(model_asset_path=model_path)
-    options = vision.FaceLandmarkerOptions(
-        base_options=base_options,
-        output_face_blendshapes=True,
-        output_face_transformation_matrixes=True,
-        num_faces=1
-    )
-    landmarker = vision.FaceLandmarker.create_from_options(options)
-else:
-    print(f"⚠️ MediaPipe Landmarker model not found at {model_path}.")
-    landmarker = None
+_landmarker = None
+
+def _get_landmarker():
+    """Lazy-load the MediaPipe Face Landmarker on first use"""
+    global _landmarker
+    if _landmarker is not None:
+        return _landmarker
+    if os.path.exists(model_path):
+        base_options = python.BaseOptions(model_asset_path=model_path)
+        options = vision.FaceLandmarkerOptions(
+            base_options=base_options,
+            output_face_blendshapes=True,
+            output_face_transformation_matrixes=True,
+            num_faces=1
+        )
+        _landmarker = vision.FaceLandmarker.create_from_options(options)
+        print("✅ MediaPipe Face Landmarker loaded")
+    else:
+        print(f"⚠️ MediaPipe Landmarker model not found at {model_path}.")
+    return _landmarker
 
 # Global state for motion analysis
 SESSION_STATE = {}
@@ -59,6 +67,7 @@ class LivenessAnalyzer:
     @staticmethod
     def depth_mapping(image: np.ndarray) -> float:
         """Method 2: Depth check using Tasks FaceLandmarker"""
+        landmarker = _get_landmarker()
         if landmarker is None:
             return 0.5
 
@@ -84,6 +93,7 @@ class LivenessAnalyzer:
     @staticmethod
     def motion_analysis(image: np.ndarray, session_id: str = "default") -> float:
         """Method 3: Motion Analysis using Tasks FaceLandmarker"""
+        landmarker = _get_landmarker()
         if landmarker is None:
             return 0.5
 

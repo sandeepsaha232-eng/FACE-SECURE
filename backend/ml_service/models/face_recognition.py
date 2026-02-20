@@ -1,20 +1,40 @@
 import numpy as np
-from facenet_pytorch import InceptionResnetV1
 import torch
 from typing import List
+import os
+import gc
+
+# Memory optimizations for constrained environments (Railway)
+torch.set_num_threads(1)
+torch.set_num_interop_threads(1)
+if hasattr(torch, 'set_grad_enabled'):
+    torch.set_grad_enabled(False)
 
 
 class FaceEmbeddingModel:
-    """Face embedding generator using FaceNet"""
+    """Face embedding generator using FaceNet (lazy-loaded)"""
     
     def __init__(self):
-        """Initialize the FaceNet model"""
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        print(f"Using device: {self.device}")
+        """Initialize the model reference (model loads lazily on first use)"""
+        self.device = torch.device('cpu')  # Force CPU to save memory
+        self.model = None
+        print(f"✅ FaceEmbeddingModel initialized (model will load on first use)")
+    
+    def _ensure_model_loaded(self):
+        """Lazy-load the FaceNet model only when first needed"""
+        if self.model is not None:
+            return
         
-        # Load pre-trained FaceNet model
-        self.model = InceptionResnetV1(pretrained='vggface2').eval().to(self.device)
-        print("✅ FaceNet model loaded successfully")
+        print("⏳ Loading FaceNet model (first request)...")
+        try:
+            from facenet_pytorch import InceptionResnetV1
+            self.model = InceptionResnetV1(pretrained='vggface2').eval().to(self.device)
+            # Free any cached memory after loading
+            gc.collect()
+            print("✅ FaceNet model loaded successfully")
+        except Exception as e:
+            print(f"❌ Failed to load FaceNet model: {e}")
+            raise
     
     def generate_embedding(self, face_image: np.ndarray) -> np.ndarray:
         """
@@ -26,6 +46,8 @@ class FaceEmbeddingModel:
         Returns:
             512-dimensional embedding vector
         """
+        self._ensure_model_loaded()
+        
         # Convert to tensor
         face_tensor = torch.from_numpy(face_image).permute(2, 0, 1).unsqueeze(0).float()
         face_tensor = face_tensor.to(self.device)
@@ -41,6 +63,9 @@ class FaceEmbeddingModel:
         norm = np.linalg.norm(embedding_np)
         if norm > 0:
             embedding_np = embedding_np / norm
+        
+        # Free tensor memory
+        del face_tensor, embedding
         
         return embedding_np
     
