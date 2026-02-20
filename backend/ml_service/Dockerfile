@@ -26,8 +26,8 @@ COPY . .
 # Download MediaPipe models
 RUN python scripts/download_models.py
 
-# Expose port (Railway sets PORT env var)
+# Expose port (Documentation only)
 EXPOSE 8000
 
-# Start the service
-CMD ["python", "main.py"]
+# Start the service - explicitly binding to the PORT env var provided by Railway
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
