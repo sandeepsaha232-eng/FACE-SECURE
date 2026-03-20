@@ -94,6 +94,8 @@ const healthHandler = (req: Request, res: Response) => {
     });
 };
 
+app.get('/', healthHandler);
+app.head('/', healthHandler);
 app.get('/health', healthHandler);
 app.get('/api/health', healthHandler);
 app.get('/api/auth/health', healthHandler); // Just in case
