@@ -76,13 +76,10 @@ export function PublicLandingPage({ onVerifySuccess }: PublicLandingPageProps) {
                         <CheckCircle2 className="w-12 h-12 text-[#0B1C2D]" />
                     </div>
                     <h2 className="text-3xl font-bold text-white mb-4">Verified successfully</h2>
-                    <p className="text-[#2DFF9A] text-lg mb-8">You are a live human</p>
-                    <button
-                        onClick={() => window.location.href = '/'}
-                        className="w-full py-4 rounded-xl bg-[#2DFF9A] hover:bg-[#2DFF9A] text-[#0B1C2D] font-bold transition-all shadow-lg shadow-emerald-500/20"
-                    >
-                        Return to Homepage
-                    </button>
+                    <p className="text-[#2DFF9A] text-lg mb-8">You are a live human. Verification complete.</p>
+                    <div className="w-full py-4 rounded-xl bg-white/5 border border-white/10 text-[#8FAEC6] font-medium">
+                        You may now safely close this window.
+                    </div>
                 </motion.div>
             </div>
         );

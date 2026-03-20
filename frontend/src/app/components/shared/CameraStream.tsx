@@ -57,6 +57,9 @@ export function CameraStream({ onStreamReady, onError, onLivenessResult }: Camer
         };
     }, [onStreamReady, onError]);
 
+    // Unique session ID for motion analysis tracking across frames
+    const sessionIdRef = useRef(`session_${Math.random().toString(36).substring(2, 15)}`);
+
     // Real-time liveness check
     useEffect(() => {
         if (status !== 'active') return;
@@ -79,7 +82,7 @@ export function CameraStream({ onStreamReady, onError, onLivenessResult }: Camer
             const imageData = canvas.toDataURL('image/jpeg', 0.6);
 
             try {
-                const result = await statsService.verifyLiveness(imageData);
+                const result = await statsService.verifyLiveness(imageData, sessionIdRef.current);
                 if (result.faceDetected) {
                     const status = result.isLive ? 'real' : 'fake';
                     setLivenessStatus(status);

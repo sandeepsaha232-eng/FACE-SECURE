@@ -33,10 +33,11 @@ export const statsService = {
         return response.data;
     },
 
-    async verifyLiveness(image: string) {
+    async verifyLiveness(image: string, sessionId?: string) {
         try {
             const response = await axios.post(`${ML_URL}/verify-liveness`, {
-                image
+                image,
+                sessionId
             });
             return response.data;
         } catch (error: any) {

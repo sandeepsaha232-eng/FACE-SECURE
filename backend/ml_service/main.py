@@ -40,6 +40,10 @@ class FaceDetectionResponse(BaseModel):
     confidence: float
     boundingBox: Optional[dict] = None
 
+class LivenessVerificationRequest(BaseModel):
+    image: str
+    sessionId: Optional[str] = "default"
+
 class EmbeddingRequest(BaseModel):
     image: str  # base64 encoded
 
@@ -139,7 +143,7 @@ async def generate_embedding_endpoint(request: EmbeddingRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/verify-liveness")
-async def verify_liveness_endpoint(request: FaceDetectionRequest):
+async def verify_liveness_endpoint(request: LivenessVerificationRequest):
     """
     Verify if the person in the image is real
     """
@@ -161,7 +165,7 @@ async def verify_liveness_endpoint(request: FaceDetectionRequest):
         face_region = extract_face_region(image, bbox)
         
         # Check liveness
-        liveness_result = check_liveness(face_region)
+        liveness_result = check_liveness(face_region, session_id=request.sessionId)
         
         return {
             "faceDetected": True,

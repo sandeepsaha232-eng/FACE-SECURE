@@ -145,11 +145,17 @@ class LivenessAnalyzer:
         ear_var = np.var(state['ear'])
         pose_var = np.var([p[0] for p in state['pose']]) + np.var([p[1] for p in state['pose']])
         
-        if ear_var < 0.000001 and pose_var < 0.000001:
+        # A static photo shaken by hand will have low EAR variance but some pose variance.
+        # We enforce a strict EAR variance (blinking) or massive head movement to pass.
+        if ear_var < 0.00005 and pose_var < 0.001:
             return 0.0
             
-        if ear_var > 0.0001 or pose_var > 0.0002:
+        if ear_var > 0.0002: # Natural blink definitively triggered
             return 1.0
+            
+        if pose_var > 0.002: # Significant 3D head rotation
+            return 0.8
+            
         return 0.3
 
     @staticmethod
@@ -213,15 +219,17 @@ def check_liveness_advanced(image: np.ndarray, session_id: str = "default") -> D
     critical_fail = scores['depth'] == 0.0 or scores['frequency'] == 0.0 or scores['reflection'] == 0.0
     
     weights = {
-        'texture': 0.1,
-        'depth': 0.5,
-        'motion': 0.2,
-        'reflection': 0.1,
-        'frequency': 0.1
+        'texture': 0.15,
+        'depth': 0.25,
+        'motion': 0.40,
+        'reflection': 0.10,
+        'frequency': 0.10
     }
     
     final_score = sum(scores[m] * weights[m] for m in scores)
-    is_live = not critical_fail and final_score > 0.8 and scores['depth'] > 0.5
+    
+    # Strictly require motion and depth verification to avoid still-image phone screen spoofing
+    is_live = not critical_fail and final_score > 0.65 and scores['motion'] >= 0.5 and scores['depth'] >= 0.5
     
     print(f"   👉 Final Result: {'LIVE' if is_live else 'SPOOF'} (Score: {final_score:.2f})")
     
