@@ -36,13 +36,15 @@ class AntiSpoofPredictor:
         # 3. Inference
         with torch.no_grad():
             outputs = self.model(img_tensor)
-            # MiniFASNet outputs 3 classes: [Fake, Real, Unknown/Hard]
-            # Normalizing to get probability
+            # MiniFASNet outputs 3 classes: [Fake, Real, Unknown]
             probs = F.softmax(outputs, dim=1)
             
-        # Class 1 is "Real"
+        # Logging raw probabilities for tuning
+        print(f"📊 Model Probs: Fake={probs[0][0]:.3f}, Real={probs[0][1]:.3f}, Unknown={probs[0][2]:.3f}")
+            
+        # Class 1 is "Real". Lowering threshold to 0.5 for better human acceptance.
         score = probs[0][1].item()
-        is_live = score > 0.85 # High confidence threshold
+        is_live = score > 0.5 # Relaxed threshold
         
         return is_live, score
 
