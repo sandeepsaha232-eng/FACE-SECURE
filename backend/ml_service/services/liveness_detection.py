@@ -35,7 +35,7 @@ def _get_landmarker():
         options = vision.FaceLandmarkerOptions(
             base_options=base_options,
             output_face_blendshapes=True,
-            output_face_transformation_matrixes=True,
+            output_facial_transformation_matrixes=True,
             num_faces=1
         )
         _landmarker = vision.FaceLandmarker.create_from_options(options)
