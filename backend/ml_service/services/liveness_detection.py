@@ -145,18 +145,15 @@ class LivenessAnalyzer:
         ear_var = np.var(state['ear'])
         pose_var = np.var([p[0] for p in state['pose']]) + np.var([p[1] for p in state['pose']])
         
-        # A static photo shaken by hand will have low EAR variance but some pose variance.
-        # We enforce a strict EAR variance (blinking) or massive head movement to pass.
-        if ear_var < 0.00005 and pose_var < 0.001:
-            return 0.0
+        # Since the frontend captures at ~0.5 FPS, blinks (EAR) are rarely captured natively.
+        # We must rely primarily on micro-translations of the head (pose variance).
+        if ear_var < 0.000005 and pose_var < 0.00005: 
+            return 0.0 # Mathematically static (photo on a stand)
             
-        if ear_var > 0.0002: # Natural blink definitively triggered
-            return 1.0
+        if ear_var > 0.0001 or pose_var > 0.0005: 
+            return 1.0 # Genuine human head movement over 10 seconds
             
-        if pose_var > 0.002: # Significant 3D head rotation
-            return 0.8
-            
-        return 0.3
+        return 0.4 # Ambiguous (hand shaking a photo, or perfectly still human)
 
     @staticmethod
     def reflection_analysis(image: np.ndarray) -> float:
@@ -221,15 +218,16 @@ def check_liveness_advanced(image: np.ndarray, session_id: str = "default") -> D
     weights = {
         'texture': 0.15,
         'depth': 0.25,
-        'motion': 0.40,
-        'reflection': 0.10,
-        'frequency': 0.10
+        'motion': 0.30,
+        'reflection': 0.15,
+        'frequency': 0.15
     }
     
     final_score = sum(scores[m] * weights[m] for m in scores)
     
-    # Strictly require motion and depth verification to avoid still-image phone screen spoofing
-    is_live = not critical_fail and final_score > 0.65 and scores['motion'] >= 0.5 and scores['depth'] >= 0.5
+    # Real humans will typically score around 0.65 - 0.95 depending on lighting and camera quality. 
+    # Must explicitly require motion>0 so mathematically rigid photos fail instantly.
+    is_live = not critical_fail and final_score > 0.55 and scores['motion'] > 0.1 and scores['depth'] >= 0.3
     
     print(f"   👉 Final Result: {'LIVE' if is_live else 'SPOOF'} (Score: {final_score:.2f})")
     
