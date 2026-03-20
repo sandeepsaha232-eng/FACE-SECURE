@@ -28,8 +28,8 @@ app.use(helmet({
         },
     },
 }));
-app.use(cors({
-    origin: (origin, callback) => {
+const corsOptions = {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
         const allowedOrigins = (process.env.FRONTEND_URL || 'https://facesecure-ten.vercel.app,https://facesecure-git-main-sandeeps-projects-d6bbd9b3.vercel.app,http://localhost:5173,http://localhost:3000')
             .split(',')
             .map(o => o.trim().replace(/\/$/, ""));
@@ -37,16 +37,18 @@ app.use(cors({
         if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
             callback(null, true);
         } else {
-            callback(null, false);
+            callback(null, false); // Will result in a CORS error for disallowed origins
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
     credentials: true,
-}));
+};
 
-// Handle preflight explicitly
-app.options('*', cors());
+app.use(cors(corsOptions));
+
+// Handle preflight explicitly with the exact same valid Configuration
+app.options('*', cors(corsOptions));
 
 // Body parser
 app.use(express.json({ limit: '10mb' })); // Allow larger payloads for images
