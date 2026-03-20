@@ -61,8 +61,8 @@ class LivenessAnalyzer:
         img_min = image.min()
         img_max = image.max()
         if img_max > img_min:
-            return ((image - img_min) / (img_max - img_min) * 255).astype(np.uint8)
-        return image
+            return np.ascontiguousarray(((image - img_min) / (img_max - img_min) * 255).astype(np.uint8))
+        return np.ascontiguousarray(image)
 
     @staticmethod
     def texture_analysis(face_image: np.ndarray) -> float:

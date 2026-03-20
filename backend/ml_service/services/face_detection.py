@@ -55,8 +55,8 @@ def base64_to_image(base64_string: str) -> np.ndarray:
     if pil_image.mode != "RGB":
         pil_image = pil_image.convert("RGB")
     
-    # Convert to numpy array
-    return np.array(pil_image)
+    # Convert to contiguous numpy array
+    return np.ascontiguousarray(np.array(pil_image))
 
 def detect_face(image: np.ndarray) -> Tuple[bool, float, Optional[dict]]:
     """
@@ -107,7 +107,7 @@ def extract_face_region(image: np.ndarray, bbox: dict, padding: float = 0.2) -> 
     y2 = min(ih, y + h + pad_h)
     
     face = image[y1:y2, x1:x2]
-    return face
+    return np.ascontiguousarray(face)
 
 def preprocess_face(face: np.ndarray, target_size: Tuple[int, int] = (160, 160)) -> np.ndarray:
     """Preprocess face for embedding generation using PIL"""
