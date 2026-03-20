@@ -8,7 +8,7 @@ const getApiUrl = () => {
         (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         return 'http://localhost:5000/api';
     }
-    return 'https://face-secure-backend-production.up.railway.app/api';
+    return 'https://face-secure.onrender.com/api';
 };
 
 const API_URL = getApiUrl();
@@ -21,7 +21,7 @@ const getMlUrl = () => {
         (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         return 'http://localhost:8000';
     }
-    return 'https://facesecure-mlservices-production.up.railway.app';
+    return 'https://face-secure-1.onrender.com';
 };
 
 const ML_URL = getMlUrl();

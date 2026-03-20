@@ -8,7 +8,7 @@ const getApiUrl = () => {
         (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         return '/api';
     }
-    return 'https://face-secure-backend-production.up.railway.app/api';
+    return 'https://face-secure.onrender.com/api';
 };
 
 const API_URL = getApiUrl();

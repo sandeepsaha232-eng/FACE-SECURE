@@ -14,8 +14,7 @@ const getApiUrl = () => {
         return '/api';
     }
 
-    // 3. Production fallback: points to your live Railway backend
-    return 'https://face-secure-backend-production.up.railway.app/api';
+    return 'https://face-secure.onrender.com/api';
 };
 
 const API_URL = getApiUrl();
