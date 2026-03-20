@@ -84,7 +84,8 @@ class LivenessAnalyzer:
             return 0.5
 
         vision = _get_mp_vision()
-        mp_image = vision.MPImage(image_format=vision.ImageFormat.SRGB, data=image)
+        import mediapipe as mp
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image)
         result = landmarker.detect(mp_image)
         
         if not result.face_landmarks:
@@ -111,7 +112,8 @@ class LivenessAnalyzer:
             return 0.5
 
         vision = _get_mp_vision()
-        mp_image = vision.MPImage(image_format=vision.ImageFormat.SRGB, data=image)
+        import mediapipe as mp
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image)
         result = landmarker.detect(mp_image)
         
         if not result.face_landmarks:

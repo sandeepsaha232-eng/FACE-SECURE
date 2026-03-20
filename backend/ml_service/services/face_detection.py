@@ -68,8 +68,9 @@ def detect_face(image: np.ndarray) -> Tuple[bool, float, Optional[dict]]:
         return False, 0.0, None
 
     vision = _get_mp_vision()
-    # MediaPipe Tasks expects MPImage
-    mp_image = vision.MPImage(image_format=vision.ImageFormat.SRGB, data=image)
+    import mediapipe as mp
+    # MediaPipe Tasks expects mp.Image
+    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image)
     
     # Process detection
     detection_result = detector.detect(mp_image)
