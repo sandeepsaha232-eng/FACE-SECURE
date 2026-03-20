@@ -1,9 +1,6 @@
 import axios from 'axios';
 
 const getApiUrl = () => {
-    // @ts-ignore
-    const envUrl = import.meta.env?.VITE_API_URL;
-    if (envUrl) return envUrl;
     if (typeof window !== 'undefined' &&
         (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         return 'http://localhost:5000/api';
@@ -14,9 +11,6 @@ const getApiUrl = () => {
 const API_URL = getApiUrl();
 
 const getMlUrl = () => {
-    // @ts-ignore
-    const envUrl = import.meta.env?.VITE_ML_URL;
-    if (envUrl) return envUrl;
     if (typeof window !== 'undefined' &&
         (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         return 'http://localhost:8000';
