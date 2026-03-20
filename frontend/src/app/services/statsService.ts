@@ -34,10 +34,15 @@ export const statsService = {
     },
 
     async verifyLiveness(image: string) {
-        const response = await axios.post(`${ML_URL}/verify-liveness`, {
-            image
-        });
-        return response.data;
+        try {
+            const response = await axios.post(`${ML_URL}/verify-liveness`, {
+                image
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("🔥 CRITICAL BACKEND ERROR 🔥:", error.response?.data?.detail || error.message);
+            throw error;
+        }
     },
 
     async submitVerification(name: string, faceImage: string, livenessScore: number) {
